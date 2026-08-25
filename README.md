@@ -1,6 +1,10 @@
-# cad2geo
-
 <div align="center">
+
+<a href="https://yusufeminoglu.github.io/cad2geo/">
+  <img src="https://raw.githubusercontent.com/YusufEminoglu/cad2geo/main/docs/icons/logo.svg" width="140" height="140" alt="cad2geo logo" />
+</a>
+
+# cad2geo
 
 [![CI](https://github.com/YusufEminoglu/cad2geo/actions/workflows/ci.yml/badge.svg)](https://github.com/YusufEminoglu/cad2geo/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/cad2geo.svg?color=f59e0b)](https://pypi.org/project/cad2geo/)

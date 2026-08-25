@@ -1,0 +1,6 @@
+include LICENSE
+include README.md
+include CHANGELOG.md
+include THIRD_PARTY_NOTICES.md
+recursive-include src/cad2geo *.py py.typed
+recursive-include tests *.py

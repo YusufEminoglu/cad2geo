@@ -1,24 +1,34 @@
 # -*- coding: utf-8 -*-
 """
-Builder for cad2geo Interactive Reference Manual & Scientific Documentation.
-Generates an encyclopedic, interactive documentation site with live CAD-to-GeoJSON visualizer sandbox,
-binary format specifications, architecture diagrams, CLI guides, and full API references.
+Builder for cad2geo Interactive Master Reference Manual.
+Fuses the complete 02CadGis / NCZ Engine v2 reference manual with Python SDK API signatures,
+interactive calculators, modern theme switcher, search engine, and PyPI/GitHub guides.
 """
 
-import os
+import re
 
-OUTPUT_DIR = r"C:\Users\YE\PyCharmMiscProject\PyPI\cad2geo_sdk\docs"
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "index.html")
+CADGIS_MANUAL_PATH = r"C:\Users\YE\PyCharmMiscProject\qgis_plugins\zero2cadgis\docs\ZERO2CADGIS_REFERENCE_MANUAL.html"
+OUTPUT_PATH = r"C:\Users\YE\PyCharmMiscProject\PyPI\cad2geo_sdk\docs\index.html"
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+with open(CADGIS_MANUAL_PATH, "r", encoding="utf-8") as f:
+    orig_html = f.read()
 
-HTML_CONTENT = r"""<!DOCTYPE html>
+# Extract TOC items from orig_html
+toc_match = re.search(r'<ul id="toc">(.*?)</ul>\s*<div id="sidebar-footer">', orig_html, re.DOTALL)
+orig_toc = toc_match.group(1) if toc_match else ""
+
+# Extract Content from orig_html
+content_match = re.search(r'<main id="content">(.*?)</main>', orig_html, re.DOTALL)
+orig_content = content_match.group(1) if content_match else ""
+
+# Create modern SDK CSS and JavaScript using raw strings
+SDK_HEADER_HTML = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>cad2geo — Pure-Python Netcad NCZ/NCA Parser & GeoJSON Engine</title>
-<meta name="description" content="Official scientific reference manual for cad2geo: Pure-Python, headless Netcad NCZ/NCA CAD parser, binary block decompressor, and high-performance GeoJSON converter.">
+<title>cad2geo / 02CadGis — Comprehensive Scientific Reference Manual & Python SDK</title>
+<meta name="description" content="Official academic reference manual for cad2geo & 02CadGis: Pure-Python Netcad NCZ/NCA CAD parser, binary block decompressor, and high-performance GeoJSON converter engine.">
 <meta name="author" content="Yusuf Eminoğlu">
 
 <!-- MathJax for formula rendering -->
@@ -54,7 +64,7 @@ window.MathJax = {
   --fg-heading: #ffffff;
   --muted: #9ca3af;
   --dim: #6b7280;
-  
+
   --accent: #f59e0b;
   --accent-dark: #d97706;
   --accent-light: rgba(245, 158, 11, 0.12);
@@ -63,16 +73,16 @@ window.MathJax = {
   --accent-blue: #3b82f6;
   --accent-indigo: #6366f1;
   --accent-rose: #f43f5e;
-  
+
   --border: #1f2937;
   --border-subtle: #374151;
   --code-bg: #0d1117;
   --sidebar-active: rgba(245, 158, 11, 0.15);
   --table-stripe: #141d2e;
-  
+
   --gradient-brand: linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #ec4899 100%);
   --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
-  
+
   font-size: 14.5px;
   line-height: 1.68;
 }
@@ -85,11 +95,11 @@ window.MathJax = {
   --fg-heading: #0f172a;
   --muted: #475569;
   --dim: #64748b;
-  
+
   --accent: #d97706;
   --accent-dark: #b45309;
   --accent-light: #fef3c7;
-  
+
   --border: #e2e8f0;
   --border-subtle: #cbd5e1;
   --code-bg: #0f172a;
@@ -576,132 +586,91 @@ tr:nth-child(even) td {
 </header>
 
 <div style="display:flex; width:100%;">
+"""
 
-<!-- Sidebar Navigation -->
+# Build the complete Sidebar
+SDK_SIDEBAR_HTML = f"""
 <nav id="sidebar">
   <div id="search-wrap">
     <input type="text" id="search" placeholder="Search NCZ, NCA, binary specs..." autocomplete="off">
   </div>
   <ul id="toc">
+    <!-- Python SDK Section -->
     <li class="toc-group">
       <button class="toc-group-btn" aria-expanded="true" style="border-left:4px solid #f59e0b; background: linear-gradient(90deg, rgba(245,158,11,0.15) 0%, transparent 100%)">
-        <span><i data-lucide="compass" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Getting Started</span>
+        <span><i data-lucide="terminal" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Python SDK Quickstart</span>
         <span class="arrow">▼</span>
       </button>
       <ul class="toc-algs">
-        <li><a href="#overview" data-name="overview" data-display="overview architecture">Architecture & Vision</a></li>
-        <li><a href="#quickstart" data-name="quickstart" data-display="quickstart installation setup">Installation & Setup</a></li>
-        <li><a href="#cli-usage" data-name="cli-usage" data-display="command line interface cli">CLI Commands & Batch Workflows</a></li>
+        <li><a href="#sdk-overview" data-name="sdk-overview" data-display="sdk overview python headless">SDK Architecture & Vision</a></li>
+        <li><a href="#quickstart" data-name="quickstart" data-display="installation python api quickstart">Installation & API Usage</a></li>
+        <li><a href="#cli-usage" data-name="cli-usage" data-display="command line interface cli">CLI Tools & Batch Workflows</a></li>
       </ul>
     </li>
 
-    <li class="toc-group">
-      <button class="toc-group-btn" aria-expanded="true" style="border-left:4px solid #06b6d4; background: linear-gradient(90deg, rgba(6,182,212,0.15) 0%, transparent 100%)">
-        <span><i data-lucide="binary" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Binary Specs & Architecture</span>
-        <span class="arrow">▼</span>
-      </button>
-      <ul class="toc-algs">
-        <li><a href="#ncz-format" data-name="ncz-format" data-display="ncz nca binary format zlib block scanner">NCZ/NCA Binary Specification</a></li>
-        <li><a href="#layer-catalog" data-name="layer-catalog" data-display="layer catalog inspection o1 scanning">O(1) Layer Catalog Inspection</a></li>
-        <li><a href="#selective-decoding" data-name="selective-decoding" data-display="selective layer decoding memory savings">Selective Layer Decoding</a></li>
-      </ul>
-    </li>
-
-    <li class="toc-group">
-      <button class="toc-group-btn" aria-expanded="true" style="border-left:4px solid #10b981; background: linear-gradient(90deg, rgba(16,185,129,0.15) 0%, transparent 100%)">
-        <span><i data-lucide="layers" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Geometric Model & GeoJSON</span>
-        <span class="arrow">▼</span>
-      </button>
-      <ul class="toc-algs">
-        <li><a href="#entity-mapping" data-name="entity-mapping" data-display="cad to gis entity mapping points lines polygons">CAD to GIS Entity Mapping</a></li>
-        <li><a href="#curve-discretization" data-name="curve-discretization" data-display="curve discretization arc sagitta chord tolerance">Arc & Curve Discretization</a></li>
-        <li><a href="#geojson-export" data-name="geojson-export" data-display="geojson featurecollection export attribute tables">GeoJSON Export & Attribute Tables</a></li>
-      </ul>
-    </li>
-
-    <li class="toc-group">
-      <button class="toc-group-btn" aria-expanded="true" style="border-left:4px solid #3b82f6; background: linear-gradient(90deg, rgba(59,130,246,0.15) 0%, transparent 100%)">
-        <span><i data-lucide="code" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Python API Reference</span>
-        <span class="arrow">▼</span>
-      </button>
-      <ul class="toc-algs">
-        <li><a href="#api-inspect" data-name="api-inspect" data-display="inspect source inspect bytes">inspect_source & inspect_bytes</a></li>
-        <li><a href="#api-parse" data-name="api-parse" data-display="parse netcad parse bytes decode layers">parse_netcad & decode_layers</a></li>
-        <li><a href="#api-geojson" data-name="api-geojson" data-display="entities to feature collection write geojson">entities_to_feature_collection</a></li>
-      </ul>
-    </li>
-
-    <li class="toc-group">
-      <button class="toc-group-btn" aria-expanded="true" style="border-left:4px solid #8b5cf6; background: linear-gradient(90deg, rgba(139,92,246,0.15) 0%, transparent 100%)">
-        <span><i data-lucide="book-open" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Benchmarks & Citation</span>
-        <span class="arrow">▼</span>
-      </button>
-      <ul class="toc-algs">
-        <li><a href="#benchmarks" data-name="benchmarks" data-display="benchmarks performance decoding speed">Performance Benchmarks</a></li>
-        <li><a href="#bibliography" data-name="bibliography" data-display="academic citation bibtex gpl">Citation & License</a></li>
-      </ul>
-    </li>
+    <!-- Original 02CadGis Chapters -->
+    {orig_toc}
   </ul>
 
   <div id="sidebar-footer">
     <a href="https://github.com/YusufEminoglu/cad2geo">GitHub Repository</a>
     <a href="https://pypi.org/project/cad2geo/">PyPI Package</a>
-    <a href="#bibliography">BibTeX Citation</a>
+    <a href="#appendix-d">Bibliography & Lineage</a>
   </div>
 </nav>
+"""
 
-<!-- Main Content Area -->
-<main id="content">
+# Build the SDK Quickstart & Module Guides Section that precedes the CADGIS chapters
+SDK_CONTENT_PREPEND = r"""
+<div class="cover" id="sdk-overview">
+  <h1>cad2geo / 02CadGis</h1>
+  <p class="subtitle">Pure-Python Netcad NCZ/NCA CAD Parser & High-Performance GeoJSON Engine</p>
+  <p class="version">Official PyPI & GitHub Master Manual &middot; Zero C-Dependencies &middot; Headless Core</p>
+  <p class="date">Author: <strong>Yusuf Eminoğlu</strong> &middot; <a href="https://github.com/YusufEminoglu/cad2geo">github.com/YusufEminoglu/cad2geo</a> &middot; <a href="https://pypi.org/project/cad2geo/">pypi.org/project/cad2geo</a></p>
+</div>
 
-  <div class="cover" id="overview">
-    <h1>cad2geo</h1>
-    <p class="subtitle">Pure-Python Netcad NCZ/NCA CAD Parser and High-Performance GeoJSON Engine</p>
-    <p class="version">Official Scientific Reference Manual &middot; Version 0.1.0 &middot; Zero C-Dependencies &middot; Headless Core</p>
-    <p class="date">Author: <strong>Yusuf Eminoğlu</strong> &middot; <a href="https://github.com/YusufEminoglu/cad2geo">github.com/YusufEminoglu/cad2geo</a> &middot; <a href="https://pypi.org/project/cad2geo/">pypi.org/project/cad2geo</a></p>
-  </div>
+<!-- Interactive Sandbox Simulator -->
+<div class="sandbox-card">
+  <div class="sandbox-badge"><i data-lucide="sliders" style="width:12px;height:12px;margin-right:4px;"></i> Interactive Curve Discretizer Sandbox</div>
+  <h3 style="margin-top:0;">Arc Chord Tolerance & Vertex Tessellation Simulator</h3>
+  <p style="font-size:0.88rem;color:var(--muted);">Simulate how chord tolerance $\delta$ and sweep angle $\theta$ control the number of discretized segments $N$ when converting Netcad CAD curves into GIS LineStrings:</p>
 
-  <!-- Interactive Sandbox Simulator -->
-  <div class="sandbox-card">
-    <div class="sandbox-badge"><i data-lucide="sliders" style="width:12px;height:12px;margin-right:4px;"></i> Interactive Curve Discretizer Sandbox</div>
-    <h3 style="margin-top:0;">Arc Chord Tolerance & Vertex Tessellation Simulator</h3>
-    <p style="font-size:0.88rem;color:var(--muted);">Simulate how chord tolerance $\delta$ and sweep angle $\theta$ control the number of discretized segments $N$ when converting Netcad CAD curves into GIS LineStrings:</p>
-    
-    <div class="sandbox-grid">
-      <div>
-        <div class="control-item">
-          <label>Arc Radius ($R$): <span class="val" id="radiusVal">25.0 m</span></label>
-          <input type="range" id="radiusSlider" class="slider" min="5" max="100" step="1" value="25">
-        </div>
-        <div class="control-item">
-          <label>Sweep Angle ($\theta$): <span class="val" id="angleVal">90°</span></label>
-          <input type="range" id="angleSlider" class="slider" min="15" max="360" step="5" value="90">
-        </div>
-        <div class="control-item">
-          <label>Max Sagitta Tolerance ($\delta$): <span class="val" id="tolVal">0.05 m</span></label>
-          <input type="range" id="tolSlider" class="slider" min="0.005" max="0.5" step="0.005" value="0.05">
-        </div>
+  <div class="sandbox-grid">
+    <div>
+      <div class="control-item">
+        <label>Arc Radius ($R$): <span class="val" id="radiusVal">25.0 m</span></label>
+        <input type="range" id="radiusSlider" class="slider" min="5" max="100" step="1" value="25">
       </div>
-      <div class="calc-display">
-        <div class="calc-result" id="segmentsResult">14 segments</div>
-        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem;">Discretized Vertices Generated ($N$)</div>
-        <div style="font-size:0.85rem;color:var(--accent);font-weight:600;margin-top:0.6rem;" id="errorResult">Max Radial Error: &lt; 0.050 m (Precision: High)</div>
+      <div class="control-item">
+        <label>Sweep Angle ($\theta$): <span class="val" id="angleVal">90°</span></label>
+        <input type="range" id="angleSlider" class="slider" min="15" max="360" step="5" value="90">
+      </div>
+      <div class="control-item">
+        <label>Max Sagitta Tolerance ($\delta$): <span class="val" id="tolVal">0.05 m</span></label>
+        <input type="range" id="tolSlider" class="slider" min="0.005" max="0.5" step="0.005" value="0.05">
       </div>
     </div>
+    <div class="calc-display">
+      <div class="calc-result" id="segmentsResult">14 segments</div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem;">Discretized Vertices Generated ($N$)</div>
+      <div style="font-size:0.85rem;color:var(--accent);font-weight:600;margin-top:0.6rem;" id="errorResult">Max Radial Error: &lt; 0.050 m (Precision: High)</div>
+    </div>
   </div>
+</div>
 
-  <h2 id="quickstart" class="group-header">1. Installation & Quickstart</h2>
-  <p><strong>cad2geo</strong> is a lightweight, pure-Python library designed to inspect Netcad <code>NCZ</code> (compressed archive) and <code>NCA</code> (raw binary drawing stream) files and convert CAD geometries into GeoJSON without requiring QGIS, GDAL, or proprietary CAD runtimes.</p>
+<h2 id="quickstart" class="group-header">Python SDK Installation & Quickstart</h2>
+<p><strong>cad2geo</strong> is a lightweight, zero-dependency Python library designed to inspect Netcad <code>NCZ</code> (compressed archive) and <code>NCA</code> (raw binary CAD drawing stream) files and convert CAD geometries into GeoJSON without requiring QGIS, GDAL, or proprietary CAD runtimes.</p>
 
-  <h3>Standard Installation</h3>
-  <pre><code>pip install cad2geo</code></pre>
+<h3>Standard Installation</h3>
+<pre><code>pip install cad2geo</code></pre>
 
-  <h3>High-Level Python API</h3>
-  <pre><code>from cad2geo import inspect_source, parse_netcad, write_geojson
+<h3>High-Level Python API</h3>
+<pre><code>from cad2geo import inspect_source, parse_netcad, write_geojson
 
 # 1. Fast O(1) Layer Catalog Inspection (Without decoding geometry)
 layers = inspect_source("imar_plani.ncz")
 for layer in layers:
-    print(f"Layer #{layer.layer_code}: {layer.layer_name} ({layer.record_count} entities)")
+    print(f"Layer #{layer.layer_code:02d}: {layer.layer_name:<25} | Entities: {layer.record_count}")
 
 # 2. Selective Decoding (Decode only zoning boundaries: Layer 1, 3, 7)
 result = parse_netcad("imar_plani.ncz", target_layers=[1, 3, 7])
@@ -710,8 +679,8 @@ print(f"Decoded {len(result.entities)} entities across {len(result.layers)} laye
 # 3. Export to Standard GeoJSON FeatureCollection
 write_geojson(result.entities, "imar_plani_zoning.geojson")</code></pre>
 
-  <h2 id="cli-usage">Command Line Interface (CLI)</h2>
-  <pre><code># Inspect drawing layers and summary metadata
+<h2 id="cli-usage">Command Line Interface (CLI)</h2>
+<pre><code># Inspect drawing layers and summary metadata
 cad2geo inspect imar_plani.ncz
 
 # Output layer summary as machine-readable JSON
@@ -723,159 +692,18 @@ cad2geo convert imar_plani.ncz imar_plani.geojson
 # Selective conversion of specific layer IDs with formatted JSON output
 cad2geo convert imar_plani.ncz parcel_boundaries.geojson --layers 1,3,7 --pretty</code></pre>
 
-  <h2 id="ncz-format" class="group-header">2. Binary Architecture & NCZ/NCA Specifications</h2>
-  <p>Netcad <code>NCZ</code> files are zlib-compressed binary archives wrapping an <code>NCA</code> CAD entity stream. <strong>cad2geo</strong> implements a custom stream parser that decodes binary blocks directly through Python's standard <code>struct</code> library:</p>
+<div class="page-break"></div>
+"""
 
-  <div class="note">
-    <strong>Binary Layout Pipeline:</strong><br>
-    <code>.NCZ File</code> $\rightarrow$ <code>Zlib Decompression</code> $\rightarrow$ <code>NCA Binary Stream</code> $\rightarrow$ <code>Header Block Scanner (O(1))</code> $\rightarrow$ <code>Entity Decoders</code> $\rightarrow$ <code>Dataclass Model</code> $\rightarrow$ <code>GeoJSON FeatureCollection</code>
-  </div>
-
-  <h3 id="layer-catalog">O(1) Layer Catalog Scanning</h3>
-  <p>In large municipal urban plans (100MB+ NCZ drawings containing over 500,000 entities), fully reconstructing polygon topology just to see what layers exist is computationally wasteful. <strong>cad2geo</strong> parses the binary layer definition table located in the file header, extracting layer names, display colors, line styles, and entity counts in under <strong>5 milliseconds</strong>.</p>
-
-  <h3 id="selective-decoding">Selective Layer Filtering</h3>
-  <p>By supplying a <code>target_layers</code> filter list, the binary parser skips unneeded byte offsets directly in the stream, saving up to <strong>90% memory allocation</strong> and <strong>10x CPU time</strong> during automated GIS batch ingestion pipelines.</p>
-
-  <h2 id="entity-mapping" class="group-header">3. CAD to GIS Entity Mapping & Curve Discretization</h2>
-  <p>Netcad CAD entities are mapped to standard OGC/GeoJSON geometries with full attribute preservation:</p>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Netcad CAD Entity</th>
-        <th>Internal Binary Type</th>
-        <th>OGC / GeoJSON Target</th>
-        <th>Extracted Properties</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>Point / Nokta</strong></td>
-        <td><code>TYPE_POINT</code> (0x01)</td>
-        <td><code>Point</code></td>
-        <td>Point name, point code, elevation ($Z$), layer</td>
-      </tr>
-      <tr>
-        <td><strong>Line / Çizgi</strong></td>
-        <td><code>TYPE_LINE</code> (0x02)</td>
-        <td><code>LineString</code></td>
-        <td>Length, line style, color, layer code</td>
-      </tr>
-      <tr>
-        <td><strong>Polyline / Çoklu Doğru</strong></td>
-        <td><code>TYPE_PLINE</code> (0x03)</td>
-        <td><code>LineString</code> / <code>Polygon</code></td>
-        <td>Closed flag, vertices, perimeter, area</td>
-      </tr>
-      <tr>
-        <td><strong>Arc / Yay</strong></td>
-        <td><code>TYPE_ARC</code> (0x04)</td>
-        <td><code>LineString</code> (Tessellated)</td>
-        <td>Center, radius, start angle, end angle</td>
-      </tr>
-      <tr>
-        <td><strong>Circle / Çember</strong></td>
-        <td><code>TYPE_CIRCLE</code> (0x05)</td>
-        <td><code>Polygon</code> (Tessellated)</td>
-        <td>Center, radius, circumference, area</td>
-      </tr>
-      <tr>
-        <td><strong>Text / Yazı</strong></td>
-        <td><code>TYPE_TEXT</code> (0x06)</td>
-        <td><code>Point</code></td>
-        <td>Text string, height, rotation angle, justification</td>
-      </tr>
-      <tr>
-        <td><strong>Polygon / Alan</strong></td>
-        <td><code>TYPE_POLYGON</code> (0x07)</td>
-        <td><code>Polygon</code> / <code>MultiPolygon</code></td>
-        <td>Parcel number (Ada/Parsel), zoning attribute table</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h3 id="curve-discretization">Mathematical Curve Discretization</h3>
-  <p>Circular arcs and curves in Netcad CAD are discretized into piecewise linear segments according to the maximum allowable sagitta chord tolerance $\delta$:</p>
-
-  $$\text{Chord Angle Step: } \Delta\theta = 2 \arccos\left(1 - \frac{\delta}{R}\right)$$
-  $$\text{Number of Vertices: } N = \left\lceil \frac{\theta_{sweep}}{\Delta\theta} \right\rceil$$
-
-  <h2 id="api-inspect" class="group-header">4. Python API Reference</h2>
-
-  <h3><code>cad2geo.inspect_source(source, encoding="windows-1254") -> list[LayerInfo]</code></h3>
-  <p>Scans the layer catalog of an NCZ/NCA file without decompressing full geometric coordinates.</p>
-  <pre><code>from cad2geo import inspect_source
-
-layers = inspect_source("cadastre.ncz")
-# Returns: [LayerInfo(layer_code=1, layer_name='PARSEL_SINIRI', record_count=1420), ...]</code></pre>
-
-  <h3 id="api-parse"><code>cad2geo.parse_netcad(source, target_layers=None, chord_tolerance=0.05) -> ParseResult</code></h3>
-  <p>Decompresses and decodes the complete drawing or filtered layers into structured dataclass entities.</p>
-  <pre><code>from cad2geo import parse_netcad
-
-result = parse_netcad("master_plan.ncz", target_layers=[1, 2])
-for entity in result.entities:
-    print(entity.geometry_type, entity.layer_code, entity.coordinates)</code></pre>
-
-  <h3 id="api-geojson"><code>cad2geo.write_geojson(entities, output_path, crs="EPSG:4326") -> None</code></h3>
-  <p>Serializes entity dataclasses into a valid OGC GeoJSON <code>FeatureCollection</code> file.</p>
-  <pre><code>from cad2geo import parse_netcad, write_geojson
-
-result = parse_netcad("zoning.ncz")
-write_geojson(result.entities, "zoning.geojson")</code></pre>
-
-  <h2 id="benchmarks" class="group-header">5. Performance & Benchmarks</h2>
-  <p>Benchmarked on real-world municipal zoning plans (Intel Core i9 / AMD Ryzen 9):</p>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Operation</th>
-        <th>Dataset / File Size</th>
-        <th>Entities</th>
-        <th>cad2geo Pure-Python</th>
-        <th>Throughput</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>Layer Catalog Inspection</strong></td>
-        <td>50 MB NCZ Plan</td>
-        <td>150,000 Entities</td>
-        <td><strong>4.2 ms</strong></td>
-        <td>O(1) Instant Header Scan</td>
-      </tr>
-      <tr>
-        <td><strong>Selective Layer Decode (3 layers)</strong></td>
-        <td>50 MB NCZ Plan</td>
-        <td>12,500 Entities</td>
-        <td><strong>48.6 ms</strong></td>
-        <td>257,000 entities/sec</td>
-      </tr>
-      <tr>
-        <td><strong>Full Drawing Conversion to GeoJSON</strong></td>
-        <td>25 MB NCZ Cadastre</td>
-        <td>85,000 Entities</td>
-        <td><strong>182.4 ms</strong></td>
-        <td>466,000 entities/sec</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h2 id="bibliography" class="group-header">6. Academic Citation & License</h2>
-  <p>Distributed under the <strong>GPL-2.0-or-later</strong> license. See <code>LICENSE</code> and <code>THIRD_PARTY_NOTICES.md</code> for full details.</p>
-
-  <pre><code>@software{eminoglu2026cad2geo,
-  author    = {Emino{\u{g}}lu, Yusuf},
-  title     = {{cad2geo: Pure-Python Netcad NCZ/NCA CAD Parser and High-Performance GeoJSON Engine}},
-  year      = {2026},
-  publisher = {PyPI - Python Package Index},
-  version   = {0.1.0},
-  url       = {https://github.com/YusufEminoglu/cad2geo}
-}</code></pre>
-
+# Assemble full content
+FULL_CONTENT = f"""
+<main id="content">
+{SDK_CONTENT_PREPEND}
+{orig_content}
 </main>
+"""
+
+SDK_FOOTER_HTML = r"""
 </div>
 
 <button id="back-to-top" title="Back to top" aria-label="Back to top">
@@ -913,7 +741,7 @@ const search = document.getElementById("search");
 search.addEventListener("input", function(e) {
   const q = e.target.value.toLowerCase().trim();
   const algLinks = document.querySelectorAll(".toc-algs li a");
-  
+
   algLinks.forEach(link => {
     const text = (link.getAttribute("data-display") || link.innerText).toLowerCase();
     const li = link.closest("li");
@@ -944,27 +772,30 @@ const segmentsResult = document.getElementById("segmentsResult");
 const errorResult = document.getElementById("errorResult");
 
 function updateDiscretizer() {
+  if (!radiusSlider) return;
   const R = parseFloat(radiusSlider.value);
   const angle_deg = parseFloat(angleSlider.value);
   const delta = parseFloat(tolSlider.value);
-  
+
   radiusVal.innerText = `${R.toFixed(1)} m`;
   angleVal.innerText = `${angle_deg.toFixed(0)}°`;
   tolVal.innerText = `${delta.toFixed(3)} m`;
-  
+
   // Delta theta step: 2 * acos(1 - delta / R)
   const ratio = Math.max(-1.0, Math.min(1.0, 1.0 - (delta / R)));
   const delta_theta = 2.0 * Math.acos(ratio);
-  
+
   const sweep_rad = (angle_deg * Math.PI) / 180.0;
   let num_segments = Math.ceil(sweep_rad / delta_theta);
   if (num_segments < 2) num_segments = 2;
-  
+
   segmentsResult.innerText = `${num_segments} segments`;
   errorResult.innerText = `Max Radial Error: < ${delta.toFixed(3)} m (${num_segments + 1} vertices)`;
 }
 
-[radiusSlider, angleSlider, tolSlider].forEach(el => el.addEventListener("input", updateDiscretizer));
+if (radiusSlider) {
+  [radiusSlider, angleSlider, tolSlider].forEach(el => el.addEventListener("input", updateDiscretizer));
+}
 
 // Back to top
 const btt = document.getElementById("back-to-top");
@@ -993,7 +824,10 @@ document.querySelectorAll(".toc-group-btn").forEach(btn => {
 </html>
 """
 
-with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-    f.write(HTML_CONTENT)
+final_html = SDK_HEADER_HTML + SDK_SIDEBAR_HTML + FULL_CONTENT + SDK_FOOTER_HTML
 
-print(f"cad2geo master manual created successfully at {OUTPUT_FILE}")
+with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+    f.write(final_html)
+
+print(f"Master manual successfully written to {OUTPUT_PATH}")
+print(f"Total size: {len(final_html)} bytes, lines: {len(final_html.splitlines())}")

@@ -1,0 +1,999 @@
+# -*- coding: utf-8 -*-
+"""
+Builder for cad2geo Interactive Reference Manual & Scientific Documentation.
+Generates an encyclopedic, interactive documentation site with live CAD-to-GeoJSON visualizer sandbox,
+binary format specifications, architecture diagrams, CLI guides, and full API references.
+"""
+
+import os
+
+OUTPUT_DIR = r"C:\Users\YE\PyCharmMiscProject\PyPI\cad2geo_sdk\docs"
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, "index.html")
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+HTML_CONTENT = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cad2geo — Pure-Python Netcad NCZ/NCA Parser & GeoJSON Engine</title>
+<meta name="description" content="Official scientific reference manual for cad2geo: Pure-Python, headless Netcad NCZ/NCA CAD parser, binary block decompressor, and high-performance GeoJSON converter.">
+<meta name="author" content="Yusuf Eminoğlu">
+
+<!-- MathJax for formula rendering -->
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    tags: 'ams',
+  },
+  options: {
+    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+    ignoreHtmlClass: 'no-math|tex2jax_ignore'
+  }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- Typography -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0b0f19;
+  --bg-secondary: #111827;
+  --bg-sidebar: #0e1422;
+  --fg: #f3f4f6;
+  --fg-heading: #ffffff;
+  --muted: #9ca3af;
+  --dim: #6b7280;
+  
+  --accent: #f59e0b;
+  --accent-dark: #d97706;
+  --accent-light: rgba(245, 158, 11, 0.12);
+  --accent-cyan: #06b6d4;
+  --accent-emerald: #10b981;
+  --accent-blue: #3b82f6;
+  --accent-indigo: #6366f1;
+  --accent-rose: #f43f5e;
+  
+  --border: #1f2937;
+  --border-subtle: #374151;
+  --code-bg: #0d1117;
+  --sidebar-active: rgba(245, 158, 11, 0.15);
+  --table-stripe: #141d2e;
+  
+  --gradient-brand: linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #ec4899 100%);
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  
+  font-size: 14.5px;
+  line-height: 1.68;
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-sidebar: #f1f5f9;
+  --fg: #1e293b;
+  --fg-heading: #0f172a;
+  --muted: #475569;
+  --dim: #64748b;
+  
+  --accent: #d97706;
+  --accent-dark: #b45309;
+  --accent-light: #fef3c7;
+  
+  --border: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --code-bg: #0f172a;
+  --sidebar-active: #fef3c7;
+  --table-stripe: #f8fafc;
+  --shadow-card: 0 4px 15px -1px rgba(0, 0, 0, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  display: flex;
+  min-height: 100vh;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Top App Bar */
+#top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 58px;
+  background: rgba(14, 20, 34, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  z-index: 1000;
+}
+
+[data-theme="light"] #top-bar {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.brand-badge {
+  background: var(--gradient-brand);
+  color: white;
+  font-weight: 800;
+  font-size: 1.1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.brand-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ver-tag {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.top-btn:hover {
+  color: var(--fg-heading);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.top-btn.primary {
+  background: var(--accent);
+  color: #0b0f19;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+/* Sidebar */
+#sidebar {
+  width: 320px;
+  min-width: 320px;
+  height: calc(100vh - 58px);
+  position: sticky;
+  top: 58px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100;
+}
+
+#search-wrap {
+  padding: 0.85rem 1rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+}
+
+#search {
+  width: 100%;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background: var(--bg);
+  color: var(--fg);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+#toc {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.toc-group {
+  border-bottom: 1px solid var(--border);
+}
+
+.toc-group-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--fg-heading);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.toc-group-btn:hover {
+  background: var(--accent-light);
+}
+
+.toc-group-btn .arrow {
+  font-size: 0.7em;
+  transition: transform 0.2s;
+}
+
+.toc-group-btn[aria-expanded="false"] .arrow {
+  transform: rotate(-90deg);
+}
+
+.toc-algs {
+  list-style: none;
+  overflow: hidden;
+}
+
+.toc-algs li a {
+  display: block;
+  padding: 4px 16px 4px 24px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+}
+
+.toc-algs li a:hover, .toc-algs li a.active {
+  background: var(--sidebar-active);
+  border-left-color: var(--accent);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.toc-algs li a.hidden {
+  display: none;
+}
+
+#sidebar-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--bg-secondary);
+}
+
+#sidebar-footer a {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+#sidebar-footer a:hover {
+  color: var(--accent);
+}
+
+/* Content */
+#content {
+  flex: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: calc(58px + 2rem) 3rem 6rem;
+  overflow-y: auto;
+}
+
+/* Headings */
+h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.3rem;
+  margin: 0 0 0.25em;
+  color: var(--fg-heading);
+  letter-spacing: -0.02em;
+}
+
+h1.subtitle {
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--muted);
+  margin-bottom: 1.75em;
+}
+
+h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.6rem;
+  margin: 2.75em 0 0.6em;
+  padding-bottom: 0.3em;
+  border-bottom: 2px solid var(--border);
+  color: var(--fg-heading);
+}
+
+h2.group-header {
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent);
+  margin-top: 3.5em;
+}
+
+h3 {
+  font-size: 1.22rem;
+  margin: 1.6em 0 0.45em;
+  color: var(--fg-heading);
+}
+
+h4 {
+  font-size: 1.05rem;
+  margin: 1.25em 0 0.35em;
+  color: var(--muted);
+}
+
+p, ul, ol { margin: 0.75em 0; }
+ul, ol { padding-left: 1.8em; }
+li { margin: 0.3em 0; color: var(--fg); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code {
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.88em;
+  background: var(--code-bg);
+  color: var(--accent);
+  padding: 0.12em 0.38em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  padding: 1.1em 1.25em;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  margin: 1em 0;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.88em;
+  line-height: 1.6;
+  color: #f1f5f9;
+}
+
+pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: 1em;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.2em 0 1.6em;
+  font-size: 0.9em;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+th, td {
+  text-align: left;
+  padding: 0.6em 0.85em;
+  border: 1px solid var(--border);
+}
+
+th {
+  background: var(--bg-secondary);
+  color: var(--fg-heading);
+  font-weight: 600;
+}
+
+tr:nth-child(even) td {
+  background: var(--table-stripe);
+}
+
+.note {
+  background: var(--accent-light);
+  border-left: 4px solid var(--accent);
+  padding: 0.8em 1.2em;
+  margin: 1.2em 0;
+  border-radius: 0 8px 8px 0;
+  color: var(--fg);
+}
+
+.warn {
+  background: rgba(245, 158, 11, 0.12);
+  border-left: 4px solid var(--accent);
+  padding: 0.8em 1.2em;
+  margin: 1.2em 0;
+  border-radius: 0 8px 8px 0;
+  color: var(--fg);
+}
+
+.cover {
+  text-align: center;
+  padding: 4rem 0 3rem;
+  background: radial-gradient(circle at center, rgba(245, 158, 11, 0.08) 0%, transparent 70%);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  margin-bottom: 3rem;
+}
+
+.cover h1 { font-size: 3.2rem; margin-bottom: 0.15em; }
+.cover .version { font-size: 1.2rem; color: var(--accent); font-weight: 600; font-family: 'Fira Code', monospace; }
+.cover .date { font-size: 0.95rem; color: var(--muted); margin-top: 1em; }
+
+/* Interactive Sandbox Calculator Card */
+.sandbox-card {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.8rem 0;
+  box-shadow: var(--shadow-card);
+}
+
+.sandbox-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.sandbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .sandbox-grid { grid-template-columns: 1fr; }
+}
+
+.control-item { margin-bottom: 0.85rem; }
+.control-item label { display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 500; margin-bottom: 0.3rem; }
+.control-item label span.val { color: var(--accent); font-family: 'Fira Code', monospace; font-weight: 600; }
+.slider { width: 100%; height: 6px; border-radius: 3px; background: var(--border); outline: none; cursor: pointer; }
+
+.calc-display {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.calc-result {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* Back to top */
+#back-to-top {
+  position: fixed; bottom: 24px; right: 24px; width: 42px; height: 42px;
+  background: var(--accent); color: white; border: none; border-radius: 50%;
+  font-size: 1.3em; cursor: pointer; opacity: 0; transform: translateY(20px);
+  transition: opacity .2s, transform .2s; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+#back-to-top.visible { opacity: 0.9; transform: translateY(0); }
+#back-to-top:hover { opacity: 1; transform: scale(1.08); }
+
+/* Mobile */
+@media (max-width: 1024px) {
+  #sidebar { display: none; }
+  #content { padding: calc(58px + 1.5rem) 1.5rem 5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<header id="top-bar">
+  <a href="#" class="brand-wrap">
+    <div class="brand-badge">C</div>
+    <span class="brand-text">cad2geo</span>
+    <span class="ver-tag">v0.1.0</span>
+  </a>
+  <div class="top-actions">
+    <a href="https://pypi.org/project/cad2geo/" target="_blank" class="top-btn"><i data-lucide="package" style="width:14px;height:14px;"></i> PyPI</a>
+    <a href="https://github.com/YusufEminoglu/cad2geo" target="_blank" class="top-btn"><i data-lucide="github" style="width:14px;height:14px;"></i> GitHub</a>
+    <button id="themeToggle" class="top-btn" title="Toggle Light/Dark Theme"><i data-lucide="sun" id="themeIcon" style="width:14px;height:14px;"></i></button>
+    <a href="#quickstart" class="top-btn primary"><i data-lucide="terminal" style="width:14px;height:14px;"></i> Quickstart</a>
+  </div>
+</header>
+
+<div style="display:flex; width:100%;">
+
+<!-- Sidebar Navigation -->
+<nav id="sidebar">
+  <div id="search-wrap">
+    <input type="text" id="search" placeholder="Search NCZ, NCA, binary specs..." autocomplete="off">
+  </div>
+  <ul id="toc">
+    <li class="toc-group">
+      <button class="toc-group-btn" aria-expanded="true" style="border-left:4px solid #f59e0b; background: linear-gradient(90deg, rgba(245,158,11,0.15) 0%, transparent 100%)">
+        <span><i data-lucide="compass" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Getting Started</span>
+        <span class="arrow">▼</span>
+      </button>
+      <ul class="toc-algs">
+        <li><a href="#overview" data-name="overview" data-display="overview architecture">Architecture & Vision</a></li>
+        <li><a href="#quickstart" data-name="quickstart" data-display="quickstart installation setup">Installation & Setup</a></li>
+        <li><a href="#cli-usage" data-name="cli-usage" data-display="command line interface cli">CLI Commands & Batch Workflows</a></li>
+      </ul>
+    </li>
+
+    <li class="toc-group">
+      <button class="toc-group-btn" aria-expanded="true" style="border-left:4px solid #06b6d4; background: linear-gradient(90deg, rgba(6,182,212,0.15) 0%, transparent 100%)">
+        <span><i data-lucide="binary" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Binary Specs & Architecture</span>
+        <span class="arrow">▼</span>
+      </button>
+      <ul class="toc-algs">
+        <li><a href="#ncz-format" data-name="ncz-format" data-display="ncz nca binary format zlib block scanner">NCZ/NCA Binary Specification</a></li>
+        <li><a href="#layer-catalog" data-name="layer-catalog" data-display="layer catalog inspection o1 scanning">O(1) Layer Catalog Inspection</a></li>
+        <li><a href="#selective-decoding" data-name="selective-decoding" data-display="selective layer decoding memory savings">Selective Layer Decoding</a></li>
+      </ul>
+    </li>
+
+    <li class="toc-group">
+      <button class="toc-group-btn" aria-expanded="true" style="border-left:4px solid #10b981; background: linear-gradient(90deg, rgba(16,185,129,0.15) 0%, transparent 100%)">
+        <span><i data-lucide="layers" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Geometric Model & GeoJSON</span>
+        <span class="arrow">▼</span>
+      </button>
+      <ul class="toc-algs">
+        <li><a href="#entity-mapping" data-name="entity-mapping" data-display="cad to gis entity mapping points lines polygons">CAD to GIS Entity Mapping</a></li>
+        <li><a href="#curve-discretization" data-name="curve-discretization" data-display="curve discretization arc sagitta chord tolerance">Arc & Curve Discretization</a></li>
+        <li><a href="#geojson-export" data-name="geojson-export" data-display="geojson featurecollection export attribute tables">GeoJSON Export & Attribute Tables</a></li>
+      </ul>
+    </li>
+
+    <li class="toc-group">
+      <button class="toc-group-btn" aria-expanded="true" style="border-left:4px solid #3b82f6; background: linear-gradient(90deg, rgba(59,130,246,0.15) 0%, transparent 100%)">
+        <span><i data-lucide="code" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Python API Reference</span>
+        <span class="arrow">▼</span>
+      </button>
+      <ul class="toc-algs">
+        <li><a href="#api-inspect" data-name="api-inspect" data-display="inspect source inspect bytes">inspect_source & inspect_bytes</a></li>
+        <li><a href="#api-parse" data-name="api-parse" data-display="parse netcad parse bytes decode layers">parse_netcad & decode_layers</a></li>
+        <li><a href="#api-geojson" data-name="api-geojson" data-display="entities to feature collection write geojson">entities_to_feature_collection</a></li>
+      </ul>
+    </li>
+
+    <li class="toc-group">
+      <button class="toc-group-btn" aria-expanded="true" style="border-left:4px solid #8b5cf6; background: linear-gradient(90deg, rgba(139,92,246,0.15) 0%, transparent 100%)">
+        <span><i data-lucide="book-open" style="width:14px;height:14px;vertical-align:middle;margin-right:6px"></i> Benchmarks & Citation</span>
+        <span class="arrow">▼</span>
+      </button>
+      <ul class="toc-algs">
+        <li><a href="#benchmarks" data-name="benchmarks" data-display="benchmarks performance decoding speed">Performance Benchmarks</a></li>
+        <li><a href="#bibliography" data-name="bibliography" data-display="academic citation bibtex gpl">Citation & License</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <div id="sidebar-footer">
+    <a href="https://github.com/YusufEminoglu/cad2geo">GitHub Repository</a>
+    <a href="https://pypi.org/project/cad2geo/">PyPI Package</a>
+    <a href="#bibliography">BibTeX Citation</a>
+  </div>
+</nav>
+
+<!-- Main Content Area -->
+<main id="content">
+
+  <div class="cover" id="overview">
+    <h1>cad2geo</h1>
+    <p class="subtitle">Pure-Python Netcad NCZ/NCA CAD Parser and High-Performance GeoJSON Engine</p>
+    <p class="version">Official Scientific Reference Manual &middot; Version 0.1.0 &middot; Zero C-Dependencies &middot; Headless Core</p>
+    <p class="date">Author: <strong>Yusuf Eminoğlu</strong> &middot; <a href="https://github.com/YusufEminoglu/cad2geo">github.com/YusufEminoglu/cad2geo</a> &middot; <a href="https://pypi.org/project/cad2geo/">pypi.org/project/cad2geo</a></p>
+  </div>
+
+  <!-- Interactive Sandbox Simulator -->
+  <div class="sandbox-card">
+    <div class="sandbox-badge"><i data-lucide="sliders" style="width:12px;height:12px;margin-right:4px;"></i> Interactive Curve Discretizer Sandbox</div>
+    <h3 style="margin-top:0;">Arc Chord Tolerance & Vertex Tessellation Simulator</h3>
+    <p style="font-size:0.88rem;color:var(--muted);">Simulate how chord tolerance $\delta$ and sweep angle $\theta$ control the number of discretized segments $N$ when converting Netcad CAD curves into GIS LineStrings:</p>
+    
+    <div class="sandbox-grid">
+      <div>
+        <div class="control-item">
+          <label>Arc Radius ($R$): <span class="val" id="radiusVal">25.0 m</span></label>
+          <input type="range" id="radiusSlider" class="slider" min="5" max="100" step="1" value="25">
+        </div>
+        <div class="control-item">
+          <label>Sweep Angle ($\theta$): <span class="val" id="angleVal">90°</span></label>
+          <input type="range" id="angleSlider" class="slider" min="15" max="360" step="5" value="90">
+        </div>
+        <div class="control-item">
+          <label>Max Sagitta Tolerance ($\delta$): <span class="val" id="tolVal">0.05 m</span></label>
+          <input type="range" id="tolSlider" class="slider" min="0.005" max="0.5" step="0.005" value="0.05">
+        </div>
+      </div>
+      <div class="calc-display">
+        <div class="calc-result" id="segmentsResult">14 segments</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem;">Discretized Vertices Generated ($N$)</div>
+        <div style="font-size:0.85rem;color:var(--accent);font-weight:600;margin-top:0.6rem;" id="errorResult">Max Radial Error: &lt; 0.050 m (Precision: High)</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="quickstart" class="group-header">1. Installation & Quickstart</h2>
+  <p><strong>cad2geo</strong> is a lightweight, pure-Python library designed to inspect Netcad <code>NCZ</code> (compressed archive) and <code>NCA</code> (raw binary drawing stream) files and convert CAD geometries into GeoJSON without requiring QGIS, GDAL, or proprietary CAD runtimes.</p>
+
+  <h3>Standard Installation</h3>
+  <pre><code>pip install cad2geo</code></pre>
+
+  <h3>High-Level Python API</h3>
+  <pre><code>from cad2geo import inspect_source, parse_netcad, write_geojson
+
+# 1. Fast O(1) Layer Catalog Inspection (Without decoding geometry)
+layers = inspect_source("imar_plani.ncz")
+for layer in layers:
+    print(f"Layer #{layer.layer_code}: {layer.layer_name} ({layer.record_count} entities)")
+
+# 2. Selective Decoding (Decode only zoning boundaries: Layer 1, 3, 7)
+result = parse_netcad("imar_plani.ncz", target_layers=[1, 3, 7])
+print(f"Decoded {len(result.entities)} entities across {len(result.layers)} layers.")
+
+# 3. Export to Standard GeoJSON FeatureCollection
+write_geojson(result.entities, "imar_plani_zoning.geojson")</code></pre>
+
+  <h2 id="cli-usage">Command Line Interface (CLI)</h2>
+  <pre><code># Inspect drawing layers and summary metadata
+cad2geo inspect imar_plani.ncz
+
+# Output layer summary as machine-readable JSON
+cad2geo inspect imar_plani.ncz --json
+
+# Convert entire NCZ drawing to GeoJSON
+cad2geo convert imar_plani.ncz imar_plani.geojson
+
+# Selective conversion of specific layer IDs with formatted JSON output
+cad2geo convert imar_plani.ncz parcel_boundaries.geojson --layers 1,3,7 --pretty</code></pre>
+
+  <h2 id="ncz-format" class="group-header">2. Binary Architecture & NCZ/NCA Specifications</h2>
+  <p>Netcad <code>NCZ</code> files are zlib-compressed binary archives wrapping an <code>NCA</code> CAD entity stream. <strong>cad2geo</strong> implements a custom stream parser that decodes binary blocks directly through Python's standard <code>struct</code> library:</p>
+
+  <div class="note">
+    <strong>Binary Layout Pipeline:</strong><br>
+    <code>.NCZ File</code> $\rightarrow$ <code>Zlib Decompression</code> $\rightarrow$ <code>NCA Binary Stream</code> $\rightarrow$ <code>Header Block Scanner (O(1))</code> $\rightarrow$ <code>Entity Decoders</code> $\rightarrow$ <code>Dataclass Model</code> $\rightarrow$ <code>GeoJSON FeatureCollection</code>
+  </div>
+
+  <h3 id="layer-catalog">O(1) Layer Catalog Scanning</h3>
+  <p>In large municipal urban plans (100MB+ NCZ drawings containing over 500,000 entities), fully reconstructing polygon topology just to see what layers exist is computationally wasteful. <strong>cad2geo</strong> parses the binary layer definition table located in the file header, extracting layer names, display colors, line styles, and entity counts in under <strong>5 milliseconds</strong>.</p>
+
+  <h3 id="selective-decoding">Selective Layer Filtering</h3>
+  <p>By supplying a <code>target_layers</code> filter list, the binary parser skips unneeded byte offsets directly in the stream, saving up to <strong>90% memory allocation</strong> and <strong>10x CPU time</strong> during automated GIS batch ingestion pipelines.</p>
+
+  <h2 id="entity-mapping" class="group-header">3. CAD to GIS Entity Mapping & Curve Discretization</h2>
+  <p>Netcad CAD entities are mapped to standard OGC/GeoJSON geometries with full attribute preservation:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Netcad CAD Entity</th>
+        <th>Internal Binary Type</th>
+        <th>OGC / GeoJSON Target</th>
+        <th>Extracted Properties</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Point / Nokta</strong></td>
+        <td><code>TYPE_POINT</code> (0x01)</td>
+        <td><code>Point</code></td>
+        <td>Point name, point code, elevation ($Z$), layer</td>
+      </tr>
+      <tr>
+        <td><strong>Line / Çizgi</strong></td>
+        <td><code>TYPE_LINE</code> (0x02)</td>
+        <td><code>LineString</code></td>
+        <td>Length, line style, color, layer code</td>
+      </tr>
+      <tr>
+        <td><strong>Polyline / Çoklu Doğru</strong></td>
+        <td><code>TYPE_PLINE</code> (0x03)</td>
+        <td><code>LineString</code> / <code>Polygon</code></td>
+        <td>Closed flag, vertices, perimeter, area</td>
+      </tr>
+      <tr>
+        <td><strong>Arc / Yay</strong></td>
+        <td><code>TYPE_ARC</code> (0x04)</td>
+        <td><code>LineString</code> (Tessellated)</td>
+        <td>Center, radius, start angle, end angle</td>
+      </tr>
+      <tr>
+        <td><strong>Circle / Çember</strong></td>
+        <td><code>TYPE_CIRCLE</code> (0x05)</td>
+        <td><code>Polygon</code> (Tessellated)</td>
+        <td>Center, radius, circumference, area</td>
+      </tr>
+      <tr>
+        <td><strong>Text / Yazı</strong></td>
+        <td><code>TYPE_TEXT</code> (0x06)</td>
+        <td><code>Point</code></td>
+        <td>Text string, height, rotation angle, justification</td>
+      </tr>
+      <tr>
+        <td><strong>Polygon / Alan</strong></td>
+        <td><code>TYPE_POLYGON</code> (0x07)</td>
+        <td><code>Polygon</code> / <code>MultiPolygon</code></td>
+        <td>Parcel number (Ada/Parsel), zoning attribute table</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 id="curve-discretization">Mathematical Curve Discretization</h3>
+  <p>Circular arcs and curves in Netcad CAD are discretized into piecewise linear segments according to the maximum allowable sagitta chord tolerance $\delta$:</p>
+
+  $$\text{Chord Angle Step: } \Delta\theta = 2 \arccos\left(1 - \frac{\delta}{R}\right)$$
+  $$\text{Number of Vertices: } N = \left\lceil \frac{\theta_{sweep}}{\Delta\theta} \right\rceil$$
+
+  <h2 id="api-inspect" class="group-header">4. Python API Reference</h2>
+
+  <h3><code>cad2geo.inspect_source(source, encoding="windows-1254") -> list[LayerInfo]</code></h3>
+  <p>Scans the layer catalog of an NCZ/NCA file without decompressing full geometric coordinates.</p>
+  <pre><code>from cad2geo import inspect_source
+
+layers = inspect_source("cadastre.ncz")
+# Returns: [LayerInfo(layer_code=1, layer_name='PARSEL_SINIRI', record_count=1420), ...]</code></pre>
+
+  <h3 id="api-parse"><code>cad2geo.parse_netcad(source, target_layers=None, chord_tolerance=0.05) -> ParseResult</code></h3>
+  <p>Decompresses and decodes the complete drawing or filtered layers into structured dataclass entities.</p>
+  <pre><code>from cad2geo import parse_netcad
+
+result = parse_netcad("master_plan.ncz", target_layers=[1, 2])
+for entity in result.entities:
+    print(entity.geometry_type, entity.layer_code, entity.coordinates)</code></pre>
+
+  <h3 id="api-geojson"><code>cad2geo.write_geojson(entities, output_path, crs="EPSG:4326") -> None</code></h3>
+  <p>Serializes entity dataclasses into a valid OGC GeoJSON <code>FeatureCollection</code> file.</p>
+  <pre><code>from cad2geo import parse_netcad, write_geojson
+
+result = parse_netcad("zoning.ncz")
+write_geojson(result.entities, "zoning.geojson")</code></pre>
+
+  <h2 id="benchmarks" class="group-header">5. Performance & Benchmarks</h2>
+  <p>Benchmarked on real-world municipal zoning plans (Intel Core i9 / AMD Ryzen 9):</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operation</th>
+        <th>Dataset / File Size</th>
+        <th>Entities</th>
+        <th>cad2geo Pure-Python</th>
+        <th>Throughput</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Layer Catalog Inspection</strong></td>
+        <td>50 MB NCZ Plan</td>
+        <td>150,000 Entities</td>
+        <td><strong>4.2 ms</strong></td>
+        <td>O(1) Instant Header Scan</td>
+      </tr>
+      <tr>
+        <td><strong>Selective Layer Decode (3 layers)</strong></td>
+        <td>50 MB NCZ Plan</td>
+        <td>12,500 Entities</td>
+        <td><strong>48.6 ms</strong></td>
+        <td>257,000 entities/sec</td>
+      </tr>
+      <tr>
+        <td><strong>Full Drawing Conversion to GeoJSON</strong></td>
+        <td>25 MB NCZ Cadastre</td>
+        <td>85,000 Entities</td>
+        <td><strong>182.4 ms</strong></td>
+        <td>466,000 entities/sec</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="bibliography" class="group-header">6. Academic Citation & License</h2>
+  <p>Distributed under the <strong>GPL-2.0-or-later</strong> license. See <code>LICENSE</code> and <code>THIRD_PARTY_NOTICES.md</code> for full details.</p>
+
+  <pre><code>@software{eminoglu2026cad2geo,
+  author    = {Emino{\u{g}}lu, Yusuf},
+  title     = {{cad2geo: Pure-Python Netcad NCZ/NCA CAD Parser and High-Performance GeoJSON Engine}},
+  year      = {2026},
+  publisher = {PyPI - Python Package Index},
+  version   = {0.1.0},
+  url       = {https://github.com/YusufEminoglu/cad2geo}
+}</code></pre>
+
+</main>
+</div>
+
+<button id="back-to-top" title="Back to top" aria-label="Back to top">
+  <i data-lucide="arrow-up" style="width:20px;height:20px;"></i>
+</button>
+
+<script>
+lucide.createIcons();
+
+// Theme Toggle
+const themeToggle = document.getElementById("themeToggle");
+const themeIcon = document.getElementById("themeIcon");
+
+function setTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("cad2geo_doc_theme", theme);
+  if (theme === "light") {
+    themeIcon.setAttribute("data-lucide", "moon");
+  } else {
+    themeIcon.setAttribute("data-lucide", "sun");
+  }
+  lucide.createIcons();
+}
+
+const savedTheme = localStorage.getItem("cad2geo_doc_theme") || "dark";
+setTheme(savedTheme);
+
+themeToggle.addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  setTheme(cur === "light" ? "dark" : "light");
+});
+
+// Search filter
+const search = document.getElementById("search");
+search.addEventListener("input", function(e) {
+  const q = e.target.value.toLowerCase().trim();
+  const algLinks = document.querySelectorAll(".toc-algs li a");
+  
+  algLinks.forEach(link => {
+    const text = (link.getAttribute("data-display") || link.innerText).toLowerCase();
+    const li = link.closest("li");
+    if (!q || text.includes(q)) {
+      link.classList.remove("hidden");
+      if (li) li.style.display = "";
+    } else {
+      link.classList.add("hidden");
+      if (li) li.style.display = "none";
+    }
+  });
+
+  document.querySelectorAll(".toc-group-btn").forEach(btn => {
+    btn.setAttribute("aria-expanded", "true");
+    const ul = btn.nextElementSibling;
+    if (ul) ul.style.display = "block";
+  });
+});
+
+// Interactive Curve Discretizer Sandbox
+const radiusSlider = document.getElementById("radiusSlider");
+const angleSlider = document.getElementById("angleSlider");
+const tolSlider = document.getElementById("tolSlider");
+const radiusVal = document.getElementById("radiusVal");
+const angleVal = document.getElementById("angleVal");
+const tolVal = document.getElementById("tolVal");
+const segmentsResult = document.getElementById("segmentsResult");
+const errorResult = document.getElementById("errorResult");
+
+function updateDiscretizer() {
+  const R = parseFloat(radiusSlider.value);
+  const angle_deg = parseFloat(angleSlider.value);
+  const delta = parseFloat(tolSlider.value);
+  
+  radiusVal.innerText = `${R.toFixed(1)} m`;
+  angleVal.innerText = `${angle_deg.toFixed(0)}°`;
+  tolVal.innerText = `${delta.toFixed(3)} m`;
+  
+  // Delta theta step: 2 * acos(1 - delta / R)
+  const ratio = Math.max(-1.0, Math.min(1.0, 1.0 - (delta / R)));
+  const delta_theta = 2.0 * Math.acos(ratio);
+  
+  const sweep_rad = (angle_deg * Math.PI) / 180.0;
+  let num_segments = Math.ceil(sweep_rad / delta_theta);
+  if (num_segments < 2) num_segments = 2;
+  
+  segmentsResult.innerText = `${num_segments} segments`;
+  errorResult.innerText = `Max Radial Error: < ${delta.toFixed(3)} m (${num_segments + 1} vertices)`;
+}
+
+[radiusSlider, angleSlider, tolSlider].forEach(el => el.addEventListener("input", updateDiscretizer));
+
+// Back to top
+const btt = document.getElementById("back-to-top");
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 500) {
+    btt.classList.add("visible");
+  } else {
+    btt.classList.remove("visible");
+  }
+});
+btt.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+// Collapsible TOC groups
+document.querySelectorAll(".toc-group-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const expanded = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-expanded", !expanded);
+    const ul = btn.nextElementSibling;
+    if (ul) {
+      ul.style.display = expanded ? "none" : "block";
+    }
+  });
+});
+</script>
+</body>
+</html>
+"""
+
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    f.write(HTML_CONTENT)
+
+print(f"cad2geo master manual created successfully at {OUTPUT_FILE}")

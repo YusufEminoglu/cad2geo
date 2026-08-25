@@ -1,41 +1,51 @@
-"""cad2geo - CAD/Netcad drawing data for Python geospatial workflows."""
+# -*- coding: utf-8 -*-
+"""
+cad2geo — Pure-Python CAD to GIS Converter & Reader Suite (02CadGis Engine).
+"""
 
 from __future__ import annotations
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Yusuf Eminoğlu"
-__email__ = "yusufeminoglu@gmail.com"
 
+from .crs import DetectedCRS, detect_crs
+from .csv_sniffer import CsvProfile, csv_to_geojson, sniff_csv_coordinates
 from .geojson import entities_to_feature_collection, write_geojson
-from .ncz_engine.model import (
-    NetcadAttributeRow,
-    NetcadAttributeTable,
-    NetcadCoordinate,
-    NetcadEntity,
-    NetcadParseResult,
-)
+from .mpyy import MPYY_CATALOG, LayerClassification, classify_cad_layer
 from .reader import (
     Cad2GeoError,
     LayerSummary,
     NetcadReader,
     inspect_source,
+    is_ncz,
     parse_netcad,
 )
+from .topology import polygonize_cad_lines, split_features_by_cad_layer
 
 __all__ = [
     "__version__",
-    "__author__",
-    "__email__",
+    # Netcad Reader
+    "NetcadReader",
     "Cad2GeoError",
     "LayerSummary",
-    "NetcadReader",
-    "NetcadCoordinate",
-    "NetcadEntity",
-    "NetcadAttributeRow",
-    "NetcadAttributeTable",
-    "NetcadParseResult",
     "inspect_source",
     "parse_netcad",
+    "is_ncz",
+    # GeoJSON
     "entities_to_feature_collection",
     "write_geojson",
+    # Smart CRS Detector
+    "detect_crs",
+    "DetectedCRS",
+    # Smart CSV Coordinate Sniffer
+    "sniff_csv_coordinates",
+    "csv_to_geojson",
+    "CsvProfile",
+    # MPYY & e-Plan Symbology
+    "classify_cad_layer",
+    "LayerClassification",
+    "MPYY_CATALOG",
+    # Topology & Layer Split
+    "polygonize_cad_lines",
+    "split_features_by_cad_layer",
 ]

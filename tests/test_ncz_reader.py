@@ -61,7 +61,9 @@ class TestNczReader(unittest.TestCase):
                 self.assertEqual(payload["entities"], [])
 
     def test_index_cache_can_be_disabled_by_env(self) -> None:
-        cache_dir = Path(tempfile.mkdtemp(prefix="cad2geo-cache-", dir=Path(__file__).resolve().parent))
+        cache_dir = Path(
+            tempfile.mkdtemp(prefix="cad2geo-cache-", dir=Path(__file__).resolve().parent)
+        )
         self.addCleanup(lambda: _rmtree(cache_dir))
         with mock.patch.object(ncz_cache, "_cache_root", return_value=cache_dir):
             path = self._write(fx.full_drawing())

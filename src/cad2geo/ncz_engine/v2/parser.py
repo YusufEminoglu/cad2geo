@@ -15,6 +15,7 @@ The engine works in two phases:
 This lets the dock build a layer catalog cheaply and materialize only
 the layers a user actually imports.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -38,15 +39,26 @@ PARSER_BACKEND_V2 = "pure-python-v2"
 # Type 7 (polyline/polygon) is closure-dependent, so it is reported as a
 # line family until decoded; the value never affects layer-code selection.
 _TYPE_FAMILY = {
-    1: "POINT", 2: "LINE", 3: "POLYGON", 4: "LINE", 5: "POINT",
-    6: "POINT", 7: "LINE", 9: "LINE", 10: "POLYGON", 11: "POLYGON",
-    12: "POLYGON", 13: "POINT", 15: "POLYGON",
+    1: "POINT",
+    2: "LINE",
+    3: "POLYGON",
+    4: "LINE",
+    5: "POINT",
+    6: "POINT",
+    7: "LINE",
+    9: "LINE",
+    10: "POLYGON",
+    11: "POLYGON",
+    12: "POLYGON",
+    13: "POINT",
+    15: "POLYGON",
 }
 
 
 @dataclass(frozen=True)
 class RecordIndex:
     """Location of one geometry record, without decoded geometry."""
+
     base: int
     size: int
     shift: int
@@ -57,6 +69,7 @@ class RecordIndex:
 @dataclass
 class LayerSummary:
     """Cheap per-layer catalog entry produced before decoding."""
+
     layer_code: int
     layer_name: str
     record_count: int = 0
@@ -83,13 +96,13 @@ class NczCatalog:
         for block in scan_blocks(cursor):
             if block.kind in GEOMETRY_BLOCK_KINDS and block.size >= 7:
                 self._index_record(
-                    block.offset, block.size,
-                    GIS_LAYOUT_SHIFT if block.kind == 22 else 0)
+                    block.offset, block.size, GIS_LAYOUT_SHIFT if block.kind == 22 else 0
+                )
             elif block.kind in CONTAINER_BLOCK_KINDS:
                 for inner in scan_embedded_geometry(cursor, block):
                     self._index_record(
-                        inner.offset, inner.size,
-                        GIS_LAYOUT_SHIFT if inner.kind == 22 else 0)
+                        inner.offset, inner.size, GIS_LAYOUT_SHIFT if inner.kind == 22 else 0
+                    )
             else:
                 apply_metadata_block(cursor, block, self.metadata)
         self._indexed = True
@@ -100,10 +113,15 @@ class NczCatalog:
         if base + 7 >= cursor.size:
             return
         geometry_type = cursor.u8(base + 6)
-        self.records.append(RecordIndex(
-            base=base, size=size, shift=shift,
-            geometry_type=geometry_type,
-            layer_code=cursor.u8(base + 7)))
+        self.records.append(
+            RecordIndex(
+                base=base,
+                size=size,
+                shift=shift,
+                geometry_type=geometry_type,
+                layer_code=cursor.u8(base + 7),
+            )
+        )
 
     # ── layer catalog ─────────────────────────────────────────────
 
@@ -118,11 +136,11 @@ class NczCatalog:
             if summary is None:
                 summary = LayerSummary(
                     layer_code=record.layer_code,
-                    layer_name=self.metadata.layer_name(record.layer_code))
+                    layer_name=self.metadata.layer_name(record.layer_code),
+                )
                 summaries[record.layer_code] = summary
             summary.record_count += 1
-            summary.families.add(
-                _TYPE_FAMILY.get(record.geometry_type, "LINE"))
+            summary.families.add(_TYPE_FAMILY.get(record.geometry_type, "LINE"))
         return [summaries[key] for key in sorted(summaries)]
 
     # ── phase 2: decode ───────────────────────────────────────────
@@ -146,10 +164,10 @@ class NczCatalog:
             decoder = DECODERS.get(record.geometry_type)
             if decoder is None:
                 self.unsupported[record.geometry_type] = (
-                    self.unsupported.get(record.geometry_type, 0) + 1)
+                    self.unsupported.get(record.geometry_type, 0) + 1
+                )
                 continue
-            payload = decoder(GeometryRecord(
-                cursor, record.base, record.size, record.shift))
+            payload = decoder(GeometryRecord(cursor, record.base, record.size, record.shift))
             if payload is None:
                 continue
             self._finalize(payload, metadata)
@@ -179,10 +197,13 @@ def _drop_smart_object_artifacts(entities: list[dict]) -> list[dict]:
     if not any(e["geometry_kind"] == "SmartObject" for e in entities):
         return entities
     return [
-        entity for entity in entities
-        if not (entity["geometry_kind"] == "Symbol"
-                and entity["layer_code"] == 0
-                and entity.get("label_text") == "S0")
+        entity
+        for entity in entities
+        if not (
+            entity["geometry_kind"] == "Symbol"
+            and entity["layer_code"] == 0
+            and entity.get("label_text") == "S0"
+        )
     ]
 
 

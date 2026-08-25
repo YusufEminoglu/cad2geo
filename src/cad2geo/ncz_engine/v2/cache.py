@@ -13,6 +13,7 @@ swallowed and the caller simply rebuilds the index. Content is stored as
 JSON (never pickle) under a per-user cache directory. Invalidation is by a
 ``(size, mtime_ns)`` fingerprint plus a bumped :data:`CACHE_VERSION`.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -31,15 +32,16 @@ _DISABLE_ENV = "CAD2GEO_NCZ_CACHE_DISABLE"
 
 
 def _cache_root() -> Path:
-    base = (os.environ.get("LOCALAPPDATA")
-            or os.environ.get("XDG_CACHE_HOME")
-            or os.path.join(os.path.expanduser("~"), ".cache"))
+    base = (
+        os.environ.get("LOCALAPPDATA")
+        or os.environ.get("XDG_CACHE_HOME")
+        or os.path.join(os.path.expanduser("~"), ".cache")
+    )
     return Path(base) / "cad2geo" / "ncz_index"
 
 
 def _is_disabled() -> bool:
-    return os.environ.get(_DISABLE_ENV, "").strip().lower() in (
-        "1", "true", "yes")
+    return os.environ.get(_DISABLE_ENV, "").strip().lower() in ("1", "true", "yes")
 
 
 def _cache_file(file_path: str) -> Path:
@@ -93,8 +95,9 @@ def load(file_path: str) -> dict | None:
     }
 
 
-def save(file_path: str, metadata: DrawingMetadata,
-         summaries: list[dict], attribute_tables: list[dict]) -> None:
+def save(
+    file_path: str, metadata: DrawingMetadata, summaries: list[dict], attribute_tables: list[dict]
+) -> None:
     """Persist a catalog for *file_path*. Silent on any failure."""
     if _is_disabled():
         return

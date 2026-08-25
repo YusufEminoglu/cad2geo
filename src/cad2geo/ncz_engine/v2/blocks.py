@@ -2,6 +2,7 @@
 # Copyright (C) 2026 Yusuf Eminoğlu
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Block scanning and drawing-metadata decoding for NCZ Engine v2."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -26,6 +27,7 @@ DATUM_CODES = {0: "WGS-84", 1: "ITRF", 4: "ED50", 254: "ED50-HGK"}
 @dataclass(frozen=True)
 class RawBlock:
     """One container block: kind byte + declared extent."""
+
     kind: int
     offset: int
     size: int  # size in the container convention: total bytes - 1
@@ -48,8 +50,7 @@ def scan_blocks(cursor: Cursor) -> Iterator[RawBlock]:
         position += size + 1
 
 
-def scan_embedded_geometry(cursor: Cursor,
-                           container: RawBlock) -> Iterator[RawBlock]:
+def scan_embedded_geometry(cursor: Cursor, container: RawBlock) -> Iterator[RawBlock]:
     """Find nested 21/22 geometry records inside a container block.
 
     A nested record is recognized by its kind byte followed by a valid
@@ -58,8 +59,9 @@ def scan_embedded_geometry(cursor: Cursor,
     position = container.offset + 5
     end = container.offset + container.size
     while position + 6 < end:
-        if cursor.u8(position) not in GEOMETRY_BLOCK_KINDS \
-                or cursor.u8(position + 5) != cursor.u8(position + 6):
+        if cursor.u8(position) not in GEOMETRY_BLOCK_KINDS or cursor.u8(position + 5) != cursor.u8(
+            position + 6
+        ):
             position += 1
             continue
         inner_size = cursor.u32(position + 1) + 4
@@ -73,6 +75,7 @@ def scan_embedded_geometry(cursor: Cursor,
 @dataclass
 class DrawingMetadata:
     """Layer table, colours and CRS hints accumulated during the scan."""
+
     layer_names: list[str] = field(default_factory=list)
     layer_colors: list[int] = field(default_factory=list)
     version_name: str = ""
@@ -134,14 +137,12 @@ def _normalize_color(argb: int) -> int:
     return argb
 
 
-def apply_metadata_block(cursor: Cursor, block: RawBlock,
-                         metadata: DrawingMetadata) -> None:
+def apply_metadata_block(cursor: Cursor, block: RawBlock, metadata: DrawingMetadata) -> None:
     """Decode a non-geometry block into *metadata* (no-op otherwise)."""
     base = block.offset
     if block.kind == BLOCK_VERSION:
         if not metadata.version_name:
-            metadata.version_name = cursor.text(
-                base + 6, cursor.u8(base + 5))
+            metadata.version_name = cursor.text(base + 6, cursor.u8(base + 5))
         return
 
     if block.kind == BLOCK_LAYER_TABLE:
@@ -163,14 +164,11 @@ def apply_metadata_block(cursor: Cursor, block: RawBlock,
     name = cursor.text(base + 6, cursor.u8(base + 5))
     if name == "MPROJ":
         if base + 21 < cursor.size:
-            projection = PROJECTION_CODES.get(
-                cursor.u8(base + 16), "Undefined")
+            projection = PROJECTION_CODES.get(cursor.u8(base + 16), "Undefined")
             datum = DATUM_CODES.get(cursor.u8(base + 17), "Undefined")
-            metadata.projection_text = (
-                f"{datum} / {projection} / Zone {cursor.u8(base + 21)}")
+            metadata.projection_text = f"{datum} / {projection} / Zone {cursor.u8(base + 21)}"
     elif name == "TILED_XML":
-        metadata.epsg = _read_epsg(
-            cursor, base, min(block.size + 1, cursor.size - base))
+        metadata.epsg = _read_epsg(cursor, base, min(block.size + 1, cursor.size - base))
     elif name == "LEX.ST2":
         if base + 20 < cursor.size:
             count = cursor.u8(base + 20)
@@ -178,10 +176,9 @@ def apply_metadata_block(cursor: Cursor, block: RawBlock,
                 item = base + 23 + index * 256 + 56
                 if item + 2 >= cursor.size:
                     break
-                metadata.layer_colors.append(_argb(
-                    cursor.u8(item),
-                    cursor.u8(item + 1),
-                    cursor.u8(item + 2)))
+                metadata.layer_colors.append(
+                    _argb(cursor.u8(item), cursor.u8(item + 1), cursor.u8(item + 2))
+                )
 
 
 def _read_epsg(cursor: Cursor, base: int, max_length: int) -> str:

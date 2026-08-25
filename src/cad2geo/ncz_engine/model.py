@@ -8,6 +8,7 @@
 # See THIRD_PARTY_NOTICES.md and LICENSE for details.
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Stable data contract shared by the NCZ engine and QGIS integration."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

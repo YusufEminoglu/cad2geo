@@ -22,6 +22,14 @@ class Cad2GeoError(RuntimeError):
     """Raised when a CAD/geospatial source cannot be read."""
 
 
+def is_ncz(path: str | Path) -> bool:
+    """Return True if path points to a Netcad NCZ/NCA file."""
+    p = Path(path)
+    if not p.is_file():
+        return False
+    return p.suffix.lower() in {".ncz", ".nca"}
+
+
 @dataclass(frozen=True)
 class LayerSummary:
     """Cheap layer summary produced without fully decoding every geometry."""
@@ -152,8 +160,7 @@ def _result_from_payload(payload: dict) -> NetcadParseResult:
     return NetcadParseResult(
         entities=[_entity_from_dict(item) for item in payload.get("entities", [])],
         attribute_tables=[
-            _attribute_table_from_dict(item)
-            for item in payload.get("attribute_tables", [])
+            _attribute_table_from_dict(item) for item in payload.get("attribute_tables", [])
         ],
         layer_names=list(payload.get("layer_names", [])),
         layer_colors=list(payload.get("layer_colors", [])),

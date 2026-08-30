@@ -1,4 +1,4 @@
-__version__ = "0.8.0"
+__version__ = "0.9.0"
 __author__ = "Yusuf Eminoğlu"
 
 from . import cli
@@ -29,10 +29,20 @@ from .cut_and_fill_calc import (
     PrismoidCell,
     calculate_earthwork_cut_fill,
 )
+from .hydrological_culvert_sizing import (
+    CatchmentRunoffProfile,
+    CulvertSizingResult,
+    calculate_culvert_hydraulic_capacity,
+)
 from .sight_distance_triangle import (
     IntersectionLegProfile,
     SightTriangleResult,
     evaluate_intersection_sight_triangles,
+)
+from .spiral_curve_transition import (
+    ClothoidTransitionResult,
+    SpiralCurveParams,
+    calculate_clothoid_spiral_curve,
 )
 from .dimension_parser import (
     DimensionEntity,
@@ -174,4 +184,12 @@ __all__ = [
     "generate_road_cross_sections",
     "CrossSectionProfile",
     "StationCrossSectionSet",
+    # Euler Clothoid Spiral Transition Curves
+    "calculate_clothoid_spiral_curve",
+    "ClothoidTransitionResult",
+    "SpiralCurveParams",
+    # Highway Culvert Hydrology & Barrel Sizing
+    "calculate_culvert_hydraulic_capacity",
+    "CulvertSizingResult",
+    "CatchmentRunoffProfile",
 ]

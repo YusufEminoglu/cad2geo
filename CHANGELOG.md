@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2026-08-30
+### Added
+- **Euler Clothoid Spiral Transition Curve Engine (`spiral_curve_transition.py`)**: Added `calculate_clothoid_spiral_curve` using Fresnel integrals for smooth highway/railway transition curves.
+- **Highway Drainage Catchment Peak Runoff & Culvert Sizing (`hydrological_culvert_sizing.py`)**: Added `calculate_culvert_hydraulic_capacity` computing Rational Method discharges and Manning pipe/box culvert dimensions.
+
 ## [0.8.0] - 2026-08-30
 ### Added
 - **Intersection Sight Distance Triangle Analyzer (`sight_distance_triangle.py`)**: Added `evaluate_intersection_sight_triangles` computing AASHTO Case B stopping and departure sight triangles.

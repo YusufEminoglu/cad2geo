@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] - 2026-08-30
+### Added
+- **AASHTO Flexible Pavement Structural Number (SN) Designer (`pavement_structural_number_sn.py`)**: Added `calculate_flexible_pavement_structural_number` solving AASHTO 1993 equations for ESAL loads and subgrade $M_r$.
+- **Highway Curb Gutter Flow & Grate Hydraulics (HEC-22) (`stormwater_curb_inlet_hydraulics.py`)**: Added `calculate_curb_inlet_hydraulic_capacity` computing modified Manning triangular spread and interception efficiency.
+
 ## [0.10.0] - 2026-08-30
 ### Added
 - **Highway Superelevation (Deve Kurpu) & Transition Runoff Designer (`superelevation_runoff_designer.py`)**: Added `calculate_superelevation_runoff` computing AASHTO $e_{max}$, tangent runoff ($L_t$), and cross-section edge profiles.

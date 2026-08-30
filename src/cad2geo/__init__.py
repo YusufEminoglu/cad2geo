@@ -1,4 +1,4 @@
-__version__ = "0.10.0"
+__version__ = "0.11.0"
 __author__ = "Yusuf Eminoğlu"
 
 from . import cli
@@ -34,6 +34,11 @@ from .hydrological_culvert_sizing import (
     CulvertSizingResult,
     calculate_culvert_hydraulic_capacity,
 )
+from .pavement_structural_number_sn import (
+    PavementLayerConfig,
+    PavementStructuralDesignResult,
+    calculate_flexible_pavement_structural_number,
+)
 from .retaining_wall_earth_pressure import (
     RetainingWallStabilityResult,
     SoilWallParameters,
@@ -48,6 +53,11 @@ from .spiral_curve_transition import (
     ClothoidTransitionResult,
     SpiralCurveParams,
     calculate_clothoid_spiral_curve,
+)
+from .stormwater_curb_inlet_hydraulics import (
+    CurbGutterFlowResult,
+    CurbGutterProfile,
+    calculate_curb_inlet_hydraulic_capacity,
 )
 from .superelevation_runoff_designer import (
     StationSuperelevationCrossSection,
@@ -212,4 +222,12 @@ __all__ = [
     "evaluate_retaining_wall_stability",
     "RetainingWallStabilityResult",
     "SoilWallParameters",
+    # AASHTO Flexible Pavement Structural Number (SN)
+    "calculate_flexible_pavement_structural_number",
+    "PavementStructuralDesignResult",
+    "PavementLayerConfig",
+    # Highway Curb Gutter Flow & Grate Hydraulics (HEC-22)
+    "calculate_curb_inlet_hydraulic_capacity",
+    "CurbGutterFlowResult",
+    "CurbGutterProfile",
 ]

@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cad2geo"
-version = "0.2.0"
+version = "0.8.0"
 authors = [
     { name = "Yusuf Eminoğlu", email = "yusufeminoglu@gmail.com" }
 ]
-description = "Pure-Python Netcad NCZ/NCA inspection and GeoJSON conversion for geospatial workflows."
+description = "Pure-Python CAD to GIS / GeoJSON Converter, Sight Triangles & Road Cross-Sections Suite."
 readme = "README.md"
 license = "GPL-2.0-or-later"
 requires-python = ">=3.9"

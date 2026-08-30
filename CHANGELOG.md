@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] - 2026-08-30
+### Added
+- **Highway Superelevation (Deve Kurpu) & Transition Runoff Designer (`superelevation_runoff_designer.py`)**: Added `calculate_superelevation_runoff` computing AASHTO $e_{max}$, tangent runoff ($L_t$), and cross-section edge profiles.
+- **Roadside Retaining Wall Lateral Earth Pressure & Stability Engine (`retaining_wall_earth_pressure.py`)**: Added `evaluate_retaining_wall_stability` computing Rankine active thrust, overturning moments, and sliding factors of safety.
+
 ## [0.9.0] - 2026-08-30
 ### Added
 - **Euler Clothoid Spiral Transition Curve Engine (`spiral_curve_transition.py`)**: Added `calculate_clothoid_spiral_curve` using Fresnel integrals for smooth highway/railway transition curves.

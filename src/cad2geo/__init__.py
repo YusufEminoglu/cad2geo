@@ -1,4 +1,4 @@
-__version__ = "0.9.0"
+__version__ = "0.10.0"
 __author__ = "Yusuf Eminoğlu"
 
 from . import cli
@@ -34,6 +34,11 @@ from .hydrological_culvert_sizing import (
     CulvertSizingResult,
     calculate_culvert_hydraulic_capacity,
 )
+from .retaining_wall_earth_pressure import (
+    RetainingWallStabilityResult,
+    SoilWallParameters,
+    evaluate_retaining_wall_stability,
+)
 from .sight_distance_triangle import (
     IntersectionLegProfile,
     SightTriangleResult,
@@ -43,6 +48,12 @@ from .spiral_curve_transition import (
     ClothoidTransitionResult,
     SpiralCurveParams,
     calculate_clothoid_spiral_curve,
+)
+from .superelevation_runoff_designer import (
+    StationSuperelevationCrossSection,
+    SuperelevationConfig,
+    SuperelevationDesignResult,
+    calculate_superelevation_runoff,
 )
 from .dimension_parser import (
     DimensionEntity,
@@ -192,4 +203,13 @@ __all__ = [
     "calculate_culvert_hydraulic_capacity",
     "CulvertSizingResult",
     "CatchmentRunoffProfile",
+    # Highway Superelevation & Runoff Transition
+    "calculate_superelevation_runoff",
+    "SuperelevationDesignResult",
+    "SuperelevationConfig",
+    "StationSuperelevationCrossSection",
+    # Retaining Wall Earth Pressure & Stability
+    "evaluate_retaining_wall_stability",
+    "RetainingWallStabilityResult",
+    "SoilWallParameters",
 ]

@@ -1,4 +1,4 @@
-__version__ = "0.11.0"
+__version__ = "0.12.0"
 __author__ = "Yusuf Eminoğlu"
 
 from . import cli
@@ -29,6 +29,11 @@ from .cut_and_fill_calc import (
     PrismoidCell,
     calculate_earthwork_cut_fill,
 )
+from .embankment_slope_bishop_stability import (
+    BishopStabilityResult,
+    SlopeSliceProfile,
+    evaluate_bishop_slope_stability,
+)
 from .hydrological_culvert_sizing import (
     CatchmentRunoffProfile,
     CulvertSizingResult,
@@ -38,6 +43,11 @@ from .pavement_structural_number_sn import (
     PavementLayerConfig,
     PavementStructuralDesignResult,
     calculate_flexible_pavement_structural_number,
+)
+from .traffic_noise_propagation_crn import (
+    RoadAcousticProfile,
+    TrafficNoiseResult,
+    calculate_crtn_noise_propagation,
 )
 from .retaining_wall_earth_pressure import (
     RetainingWallStabilityResult,
@@ -230,4 +240,12 @@ __all__ = [
     "calculate_curb_inlet_hydraulic_capacity",
     "CurbGutterFlowResult",
     "CurbGutterProfile",
+    # Geotechnical Embankment Bishop Slope Stability
+    "evaluate_bishop_slope_stability",
+    "BishopStabilityResult",
+    "SlopeSliceProfile",
+    # Road Traffic Noise (CRTN) Acoustic Propagation
+    "calculate_crtn_noise_propagation",
+    "TrafficNoiseResult",
+    "RoadAcousticProfile",
 ]

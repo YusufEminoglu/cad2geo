@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] - 2026-08-30
+### Added
+- **Geotechnical Embankment Bishop Circular Slope Stability Engine (`embankment_slope_bishop_stability.py`)**: Added `evaluate_bishop_slope_stability` solving Bishop's simplified method of slices and pore water ratio $r_u$.
+- **Calculation of Road Traffic Noise (CRTN) Acoustic Propagation Engine (`traffic_noise_propagation_crn.py`)**: Added `calculate_crtn_noise_propagation` calculating $L_{10,18h}$ and $L_{den}$ façade noise attenuation.
+
 ## [0.11.0] - 2026-08-30
 ### Added
 - **AASHTO Flexible Pavement Structural Number (SN) Designer (`pavement_structural_number_sn.py`)**: Added `calculate_flexible_pavement_structural_number` solving AASHTO 1993 equations for ESAL loads and subgrade $M_r$.

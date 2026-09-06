@@ -6,17 +6,17 @@
 
 # cad2geo
 
-[![CI](https://github.com/YusufEminoglu/cad2geo/actions/workflows/ci.yml/badge.svg)](https://github.com/YusufEminoglu/cad2geo/actions/workflows/ci.yml)
+[![CI](https://gitlab.com/geospacephilo/cad2geo/actions/workflows/ci.yml/badge.svg)](https://gitlab.com/geospacephilo/cad2geo/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/cad2geo.svg?color=f59e0b)](https://pypi.org/project/cad2geo/)
 [![Python version support](https://img.shields.io/pypi/pyversions/cad2geo.svg?color=3b82f6)](https://pypi.org/project/cad2geo/)
-[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-10b981.svg)](https://yusufeminoglu.github.io/cad2geo/)
+[![Documentation](https://img.shields.io/badge/docs-GitLab%20Pages-10b981.svg)](https://yusufeminoglu.github.io/cad2geo/)
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](LICENSE)
 [![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-D7FF64.svg)](https://docs.astral.sh/ruff/)
 [![Test Coverage](https://img.shields.io/badge/coverage-85%25%2B-brightgreen.svg)](#-development--testing)
 
 **Pure-Python Netcad NCZ/NCA CAD Inspection and High-Performance GeoJSON Conversion Engine.**
 
-[📖 **Open Interactive Web Manual (GitHub Pages)**](https://yusufeminoglu.github.io/cad2geo/) • [📦 **PyPI Package**](https://pypi.org/project/cad2geo/) • [🐛 **Issue Tracker**](https://github.com/YusufEminoglu/cad2geo/issues)
+[📖 **Open Interactive Web Manual (GitLab Pages)**](https://yusufeminoglu.github.io/cad2geo/) • [📦 **PyPI Package**](https://pypi.org/project/cad2geo/) • [🐛 **Issue Tracker**](https://gitlab.com/geospacephilo/cad2geo/-/issues)
 
 </div>
 
@@ -150,7 +150,7 @@ Benchmarked on complex municipal zoning drawings (100MB+ NCZ archives):
 
 ```bash
 # Clone the repository
-git clone https://github.com/YusufEminoglu/cad2geo.git
+git clone https://gitlab.com/geospacephilo/cad2geo.git
 cd cad2geo
 
 # Install in editable mode with development dependencies
@@ -177,7 +177,7 @@ If you use **cad2geo** in scientific research, GIS data engineering pipelines, o
   year      = {2026},
   publisher = {PyPI - Python Package Index},
   version   = {0.1.0},
-  url       = {https://github.com/YusufEminoglu/cad2geo}
+  url       = {https://gitlab.com/geospacephilo/cad2geo}
 }
 ```
 

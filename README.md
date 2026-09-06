@@ -9,14 +9,14 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/cad2geo.svg?color=f59e0b)](https://pypi.org/project/cad2geo/)
 [![Python version support](https://img.shields.io/pypi/pyversions/cad2geo.svg?color=3b82f6)](https://pypi.org/project/cad2geo/)
-[![Documentation](https://img.shields.io/badge/docs-GEOPHILO-10b981.svg)](https://geophilo.com/)
+[![Documentation](https://img.shields.io/badge/docs-GEOPHILO-10b981.svg)](https://geophilo.com/cad2geo/)
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](LICENSE)
 [![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-D7FF64.svg)](https://docs.astral.sh/ruff/)
 [![Test Coverage](https://img.shields.io/badge/coverage-85%25%2B-brightgreen.svg)](#-development--testing)
 
 **Pure-Python Netcad NCZ/NCA CAD Inspection and High-Performance GeoJSON Conversion Engine.**
 
-[📖 **Open Interactive Web Manual (GitLab Pages)**](https://geophilo.com/) • [📦 **PyPI Package**](https://pypi.org/project/cad2geo/) • [🐛 **Issue Tracker**](https://gitlab.com/geospacephilo/cad2geo/-/issues)
+[📖 **Open Interactive Web Manual**](https://geophilo.com/cad2geo/) • [📦 **PyPI Package**](https://pypi.org/project/cad2geo/) • [🐛 **Issue Tracker**](https://gitlab.com/geospacephilo/cad2geo/-/issues)
 
 </div>
 

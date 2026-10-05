@@ -208,8 +208,9 @@ def _rotated_rectangle(
 ) -> list[dict]:
     """Box corner ring (bottom = cos/-sin, side = sin/cos axes).
 
-    Uses ``deg * (pi/180)`` rather than ``math.radians`` to reproduce the
-    v1 box computation bit for bit.
+    The rotation is applied as an explicit ``deg * (pi/180)`` multiply
+    rather than through ``math.radians``, so every corner comes out of the
+    one operation and the ring stays reproducible.
     """
     angle = rotation_degrees * (math.pi / 180.0)
     return _corner_ring(
@@ -463,8 +464,9 @@ def decode_box(record: GeometryRecord) -> dict | None:
 def _plan_box_name(record: GeometryRecord) -> str:
     """A ``plan<digits>`` token inside the record, if present.
 
-    Operates on a single lowercased copy of the record bytes and uses
-    ``bytes.find`` instead of a per-byte scan, matching the v1 result.
+    Scans one lowercased copy of the record bytes with ``bytes.find``, so a
+    long record costs a single C-level pass instead of a Python-level loop
+    over every byte.
     """
     cursor = record.cursor
     end = min(cursor.size, record.end)

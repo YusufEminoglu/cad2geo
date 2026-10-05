@@ -181,8 +181,9 @@ class NczCatalog:
         payload["layer_name"] = metadata.layer_name(layer_code)
         color = metadata.resolve_color(layer_code, color_code)
         if color is None:
-            # v1 post-pass: an unresolved colour (e.g. a non-standard colour
-            # code) falls back to the layer's own colour.
+            # An unresolved colour — a non-standard per-feature colour code
+            # the pen table has no entry for — falls back to the layer's own
+            # colour rather than leaving the feature uncoloured.
             color = metadata.resolve_color(layer_code, 0)
         payload["color_argb"] = color
 
@@ -208,7 +209,7 @@ def _drop_smart_object_artifacts(entities: list[dict]) -> list[dict]:
 
 
 def parse_file(file_path: str) -> dict:
-    """Full decode of *file_path* into the v1-compatible payload dict."""
+    """Full decode of *file_path* into the engine's payload dict."""
     with open(file_path, "rb") as handle:
         data = handle.read()
     return parse_bytes(data)

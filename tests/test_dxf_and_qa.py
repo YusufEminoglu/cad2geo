@@ -3,14 +3,11 @@
 
 from __future__ import annotations
 
-import json
 import tempfile
 import unittest
 from pathlib import Path
 
 from cad2geo import (
-    DXFEntity,
-    DXFReader,
     QARepairReport,
     clean_cad_entities,
     dxf_to_geojson,
@@ -20,7 +17,7 @@ from cad2geo import (
     snap_endpoints,
 )
 from cad2geo.cli import main as cli_main
-from cad2geo.ncz_engine.model import NetcadCoordinate, NetcadEntity
+from cad2geo.ncz_engine.model import NetcadCoordinate
 from tests import ncz_fixtures as fx
 
 SAMPLE_DXF = """0

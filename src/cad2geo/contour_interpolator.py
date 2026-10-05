@@ -4,8 +4,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from pathlib import Path
+from dataclasses import dataclass
 from typing import Any, Sequence
 
 
@@ -76,8 +75,8 @@ def generate_tin_contours(
     triangles: list[tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]] = []
 
     # Bounding box grid triangulation
-    xs = sorted(list({round(p[0], 2) for p in pts}))
-    ys = sorted(list({round(p[1], 2) for p in pts}))
+    xs = sorted({round(p[0], 2) for p in pts})
+    ys = sorted({round(p[1], 2) for p in pts})
 
     # Fallback to simple delaunay fan or grid mesh
     if len(xs) > 1 and len(ys) > 1:

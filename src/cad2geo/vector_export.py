@@ -3,9 +3,8 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any, Iterable
 
 from .ncz_engine.model import NetcadEntity
 

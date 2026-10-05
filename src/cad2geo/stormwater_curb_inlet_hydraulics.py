@@ -3,9 +3,8 @@
 
 from __future__ import annotations
 
-import math
-from dataclasses import dataclass, field
-from typing import Any, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -43,7 +42,7 @@ def calculate_curb_inlet_hydraulic_capacity(
     profile: CurbGutterProfile | None = None,
 ) -> CurbGutterFlowResult:
     """Compute FHWA HEC-22 Manning modified triangular gutter flow spread and grate inlet interception capacity.
-    
+
     Modified Manning's Equation for Triangular Gutter Flow:
     Q = (K_m / n) * S_x^(5/3) * S_0^(1/2) * T^(8/3)  where K_m = 0.376 (SI)
     T = ( (Q * n) / (0.376 * S_x^(5/3) * S_0^(1/2)) )^(3/8)

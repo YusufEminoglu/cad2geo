@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Any, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -43,7 +43,7 @@ def calculate_clothoid_spiral_curve(
     num_sample_points: int = 20,
 ) -> ClothoidTransitionResult:
     """Compute Euler spiral (clothoid) transition points using Fresnel integral Taylor series expansions.
-    
+
     Formulae:
     L = A^2 / R
     tau = L / (2 * R) = L^2 / (2 * A^2)

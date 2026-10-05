@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Any, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -49,7 +49,7 @@ def calculate_flexible_pavement_structural_number(
     layers: PavementLayerConfig | None = None,
 ) -> PavementStructuralDesignResult:
     """Compute AASHTO 1993 flexible pavement design equation solving for required and provided Structural Number (SN).
-    
+
     AASHTO Equation:
     SN = a1 * D1 + a2 * D2 * m2 + a3 * D3 * m3
     Required SN estimated from ESALs and Subgrade Resilient Modulus Mr.
@@ -62,10 +62,6 @@ def calculate_flexible_pavement_structural_number(
         + ly.a2_base_layer_coeff * ly.crushed_stone_base_thickness_d2_inches * ly.m2_base_drainage_coeff
         + ly.a3_subbase_layer_coeff * ly.subbase_thickness_d3_inches * ly.m3_subbase_drainage_coeff
     )
-
-    # Standard normal deviate Z_R
-    zr = -1.282 if reliability_level_pct >= 90.0 else -0.841
-    delta_psi = initial_serviceability_p0 - terminal_serviceability_pt
 
     # AASHTO 1993 empirical regression approximation for required SN:
     log_esal = math.log10(max(0.1, design_traffic_esal_millions * 1e6))

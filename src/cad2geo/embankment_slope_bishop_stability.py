@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Any, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -44,7 +44,7 @@ def evaluate_bishop_slope_stability(
     tolerance: float = 0.001,
 ) -> BishopStabilityResult:
     """Compute geotechnical circular arc slope stability using Bishop's Simplified Method of Slices.
-    
+
     Bishop's Simplified Safety Factor FS:
     FS = [ sum( (c' * b + (W - u * b) * tan(phi')) / m_alpha ) ] / [ sum( W * sin(alpha) ) ]
     where m_alpha = cos(alpha) * (1 + tan(alpha) * tan(phi') / FS)
@@ -67,7 +67,6 @@ def evaluate_bishop_slope_stability(
     slice_widths: list[float] = []
 
     for i in range(num_slices):
-        x = (i + 0.5) * b_slice
         # Normalized slice elevation above slip circle
         alpha_i = math.radians(-35.0 + (70.0 / num_slices) * (i + 0.5))
         h_i = max(0.5, h * math.sin((math.pi / num_slices) * (i + 0.5)))
@@ -85,7 +84,7 @@ def evaluate_bishop_slope_stability(
     fs = 1.50
     iterations = 0
 
-    for it in range(30):
+    for _it in range(30):
         iterations += 1
         resisting_sum = 0.0
         for w, a, b in zip(slice_weights, slice_alphas, slice_widths):

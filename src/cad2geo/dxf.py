@@ -3,10 +3,9 @@
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from .ncz_engine.model import NetcadCoordinate, NetcadEntity
 
@@ -151,7 +150,6 @@ class DXFReader:
         current_text_height = 0.0
         current_radius = 0.0
         current_is_closed = False
-        polyline_vertices: list[NetcadCoordinate] = []
 
         def flush_entity() -> None:
             nonlocal current_kind, current_layer, current_aci, current_coords

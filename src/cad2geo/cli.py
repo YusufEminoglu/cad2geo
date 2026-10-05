@@ -130,7 +130,7 @@ def _clean(args: argparse.Namespace) -> int:
         snap_tolerance=args.snap_tolerance,
         min_polygon_area=args.min_area,
     )
-    collection = write_geojson(cleaned, args.output)
+    write_geojson(cleaned, args.output)
     print(f"Cleaned CAD: {report.total_input_entities} -> {report.total_output_entities} entities")
     print(f"  - Endpoints snapped: {report.endpoints_snapped}")
     print(f"  - Duplicate vertices removed: {report.duplicate_vertices_removed}")

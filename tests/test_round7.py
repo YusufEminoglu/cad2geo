@@ -8,7 +8,6 @@ import unittest
 from pathlib import Path
 
 from cad2geo import (
-    CrossSectionProfile,
     IntersectionLegProfile,
     SightTriangleResult,
     StationCrossSectionSet,

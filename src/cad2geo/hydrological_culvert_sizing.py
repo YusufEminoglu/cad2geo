@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Any, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -75,7 +75,7 @@ def calculate_culvert_hydraulic_capacity(
                     headwater_depth_hw_m=hw,
                     is_flow_capacity_adequate=(hw <= allowable_headwater_depth_m),
                 )
-    
+
     # Larger flows -> Rectangular Box Culvert
     culv_type = "BOX_RECTANGULAR"
     for b_w in [2.0, 2.5, 3.0, 4.0, 5.0, 6.0]:

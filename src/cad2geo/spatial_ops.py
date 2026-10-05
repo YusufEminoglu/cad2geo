@@ -4,8 +4,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Any, Iterable, Sequence
+from typing import Any, Sequence
 
 from .ncz_engine.model import NetcadCoordinate, NetcadEntity
 

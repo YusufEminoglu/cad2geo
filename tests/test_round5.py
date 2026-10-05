@@ -6,8 +6,6 @@ from __future__ import annotations
 import unittest
 
 from cad2geo import (
-    ContourIsoline,
-    DimensionEntity,
     DimensionSummary,
     TINSurfaceMesh,
     extract_cad_dimensions,

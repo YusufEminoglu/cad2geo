@@ -3,9 +3,8 @@
 
 from __future__ import annotations
 
-import math
-from dataclasses import dataclass, field
-from typing import Any, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -50,7 +49,7 @@ def calculate_superelevation_runoff(
     station_sampling_interval_m: float = 10.0,
 ) -> SuperelevationDesignResult:
     """Compute AASHTO design superelevation rate (e), tangent runoff (Lt), and superelevation runoff (Lr).
-    
+
     Formulae:
     e_design = (V^2) / (127 * R) - f_s
     L_r = (w * n_1 * e_d) / delta_relative_gradient

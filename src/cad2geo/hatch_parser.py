@@ -3,9 +3,7 @@
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
-from typing import Any, Sequence
 
 
 @dataclass
@@ -34,9 +32,6 @@ class HatchPattern:
 
         size = max(10, int(20 * self.scale))
         ang = self.angle_degrees
-        rad = math.radians(ang)
-        x2 = size * math.cos(rad)
-        y2 = size * math.sin(rad)
 
         return f"""<pattern id="{pattern_id}" width="{size}" height="{size}" patternTransform="rotate({ang})" patternUnits="userSpaceOnUse">
   <line x1="0" y1="0" x2="{size}" y2="0" stroke="{stroke_color}" stroke-width="1" />

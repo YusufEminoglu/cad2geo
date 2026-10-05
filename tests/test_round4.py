@@ -7,9 +7,7 @@ import unittest
 
 from cad2geo import (
     AnnotationMatchResult,
-    CADBlockInstance,
     CADBlockLibrary,
-    MatchedPolygonAnnotation,
     extract_cad_blocks,
     link_annotations_to_polygons,
 )

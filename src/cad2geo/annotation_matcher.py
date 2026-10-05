@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Sequence
 
 from .spatial_ops import point_in_polygon
@@ -96,7 +96,7 @@ def link_annotations_to_polygons(
         if not matched:
             min_dist = float("inf")
             best_idx = -1
-            for p_idx, p_data in enumerate(polygons):
+            for p_idx, _ in enumerate(polygons):
                 c = poly_centroids[p_idx]
                 d = math.hypot(pos[0] - c[0], pos[1] - c[1])
                 if d < min_dist and d <= max_search_radius:

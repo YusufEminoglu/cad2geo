@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Any, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -44,7 +44,7 @@ def calculate_crtn_noise_propagation(
     ground_absorption_factor: float = 0.5,  # 0.0 hard ground, 1.0 soft grass
 ) -> TrafficNoiseResult:
     """Compute UK Department of Transport CRTN traffic acoustic decibel levels at receiver facades.
-    
+
     CRTN Basic Noise Level at 10m:
     L10_10m = 42.2 + 10 * log10(q) + Delta_v_p + Delta_G
     where Delta_v_p = 33 * log10(V + 40 + 500/V) + 10 * log10(1 + 5p / V) - 68.8

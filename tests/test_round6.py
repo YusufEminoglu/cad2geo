@@ -7,7 +7,6 @@ import unittest
 
 from cad2geo import (
     CutFillVolumeReport,
-    PrismoidCell,
     SplineDensificationResult,
     calculate_earthwork_cut_fill,
     densify_cad_splines,

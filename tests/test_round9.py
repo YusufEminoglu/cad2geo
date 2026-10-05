@@ -8,7 +8,6 @@ import unittest
 from cad2geo import (
     RetainingWallStabilityResult,
     SoilWallParameters,
-    StationSuperelevationCrossSection,
     SuperelevationConfig,
     SuperelevationDesignResult,
     calculate_superelevation_runoff,

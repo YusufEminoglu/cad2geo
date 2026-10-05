@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 from typing import Any, Sequence
 
@@ -86,6 +85,6 @@ def extract_cad_blocks(
 
     return CADBlockLibrary(
         total_blocks_found=len(instances),
-        unique_block_names=sorted(list(unique_names)),
+        unique_block_names=sorted(unique_names),
         instances=instances,
     )

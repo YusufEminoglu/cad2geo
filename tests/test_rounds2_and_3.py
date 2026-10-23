@@ -48,8 +48,18 @@ class TestCad2GeoRounds2And3(unittest.TestCase):
 
     def test_spatial_index(self) -> None:
         idx = CADSpatialIndex(cell_size=50.0)
-        e1 = NetcadEntity(geometry_kind="POINT", layer_code=0, layer_name="P1", coordinates=[NetcadCoordinate(x=10.0, y=10.0)])
-        e2 = NetcadEntity(geometry_kind="POINT", layer_code=0, layer_name="P2", coordinates=[NetcadCoordinate(x=200.0, y=200.0)])
+        e1 = NetcadEntity(
+            geometry_kind="POINT",
+            layer_code=0,
+            layer_name="P1",
+            coordinates=[NetcadCoordinate(x=10.0, y=10.0)],
+        )
+        e2 = NetcadEntity(
+            geometry_kind="POINT",
+            layer_code=0,
+            layer_name="P2",
+            coordinates=[NetcadCoordinate(x=200.0, y=200.0)],
+        )
 
         idx.insert(e1)
         idx.insert(e2)

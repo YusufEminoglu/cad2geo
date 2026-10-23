@@ -28,6 +28,7 @@ class CulvertSizingResult:
     is_flow_capacity_adequate: bool
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the culvert sizing result as a JSON-serialisable mapping."""
         return {
             "peak_q_m3s": round(self.peak_discharge_q_m3s, 2),
             "culvert_type": self.recommended_culvert_type,
@@ -59,7 +60,7 @@ def calculate_culvert_hydraulic_capacity(
         culv_type = "PIPE_CIRCULAR"
         for dia in [0.8, 1.0, 1.2, 1.5, 1.8, 2.0, 2.5]:
             r_pipe = dia / 2.0
-            a_flow = math.pi * (r_pipe ** 2)
+            a_flow = math.pi * (r_pipe**2)
             p_wetted = math.pi * dia
             r_h = a_flow / p_wetted
             cap = (1.0 / p.manning_roughness_n) * a_flow * (r_h ** (2.0 / 3.0)) * math.sqrt(slope_s)

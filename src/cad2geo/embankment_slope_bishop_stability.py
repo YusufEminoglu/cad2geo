@@ -29,6 +29,7 @@ class BishopStabilityResult:
     resisting_moment_kn_m: float
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the stability result as a JSON-serialisable mapping."""
         return {
             "fs_bishop": round(self.factor_of_safety_bishop, 2),
             "radius_m": round(self.critical_slip_circle_radius_m, 1),

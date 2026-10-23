@@ -32,6 +32,7 @@ _DISABLE_ENV = "CAD2GEO_NCZ_CACHE_DISABLE"
 
 
 def _cache_root() -> Path:
+    """Return the per-user directory where NCZ index caches are stored."""
     base = (
         os.environ.get("LOCALAPPDATA")
         or os.environ.get("XDG_CACHE_HOME")
@@ -41,10 +42,12 @@ def _cache_root() -> Path:
 
 
 def _is_disabled() -> bool:
+    """Return True when the cache is switched off via the environment."""
     return os.environ.get(_DISABLE_ENV, "").strip().lower() in ("1", "true", "yes")
 
 
 def _cache_file(file_path: str) -> Path:
+    """Return the cache-file path for *file_path* (hash of its absolute path)."""
     digest = hashlib.sha256(
         os.path.abspath(file_path).encode("utf-8", "surrogatepass")
     ).hexdigest()[:20]
@@ -52,6 +55,7 @@ def _cache_file(file_path: str) -> Path:
 
 
 def fingerprint(file_path: str) -> dict:
+    """Return the ``(size, mtime_ns)`` invalidation fingerprint of *file_path*."""
     stat = os.stat(file_path)
     return {"size": stat.st_size, "mtime_ns": stat.st_mtime_ns}
 

@@ -38,9 +38,21 @@ class TestCad2GeoRound5(unittest.TestCase):
     def test_dimension_parser_qa(self) -> None:
         raw_dims = [
             # Accurate dimension (50.0m)
-            {"dim_type": "ALIGNED", "p1": (0.0, 0.0), "p2": (50.0, 0.0), "measurement": "50.00", "layer": "DIM"},
+            {
+                "dim_type": "ALIGNED",
+                "p1": (0.0, 0.0),
+                "p2": (50.0, 0.0),
+                "measurement": "50.00",
+                "layer": "DIM",
+            },
             # Discrepancy (drawn 100m, labeled 120m)
-            {"dim_type": "LINEAR", "p1": (0.0, 0.0), "p2": (100.0, 0.0), "measurement": "120.00", "layer": "DIM"},
+            {
+                "dim_type": "LINEAR",
+                "p1": (0.0, 0.0),
+                "p2": (100.0, 0.0),
+                "measurement": "120.00",
+                "layer": "DIM",
+            },
         ]
 
         summary = extract_cad_dimensions(raw_dims, tolerance_m=0.05)

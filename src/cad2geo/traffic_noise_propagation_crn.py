@@ -28,6 +28,7 @@ class TrafficNoiseResult:
     is_exceeding_residential_threshold: bool
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the noise propagation result as a JSON-serialisable mapping."""
         return {
             "l10_18h_db": round(self.basic_noise_level_l10_18h_db, 1),
             "facade_l10_db": round(self.facade_noise_level_l10_db, 1),
@@ -60,7 +61,11 @@ def calculate_crtn_noise_propagation(
     base_l10 = 42.2 + 10.0 * math.log10(q)
 
     # 2. Speed and heavy vehicle correction
-    speed_heavy_term = 33.0 * math.log10(v + 40.0 + 500.0 / v) + 10.0 * math.log10(1.0 + (5.0 * p_heavy) / v) - 68.8
+    speed_heavy_term = (
+        33.0 * math.log10(v + 40.0 + 500.0 / v)
+        + 10.0 * math.log10(1.0 + (5.0 * p_heavy) / v)
+        - 68.8
+    )
 
     # 3. Gradient correction
     grad_term = 0.3 * g
@@ -70,7 +75,9 @@ def calculate_crtn_noise_propagation(
 
     # 4. Distance attenuation (geometric spreading + ground absorption)
     slant_dist = math.hypot(d, receiver_height_m - 1.2)
-    dist_attenuation = 10.0 * math.log10(slant_dist / 10.0) + (ground_absorption_factor * 5.2 * math.log10(slant_dist / 10.0))
+    dist_attenuation = 10.0 * math.log10(slant_dist / 10.0) + (
+        ground_absorption_factor * 5.2 * math.log10(slant_dist / 10.0)
+    )
 
     # Facade noise level
     facade_l10 = l10_ref - dist_attenuation + p.facade_reflection_correction_db

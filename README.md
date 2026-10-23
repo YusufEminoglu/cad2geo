@@ -12,7 +12,7 @@
 [![Documentation](https://img.shields.io/badge/docs-GEOPHILO-10b981.svg)](https://geophilo.com/cad2geo/)
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](LICENSE)
 [![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-D7FF64.svg)](https://docs.astral.sh/ruff/)
-[![Test Coverage](https://img.shields.io/badge/coverage-85%25%2B-brightgreen.svg)](#-development--testing)
+[![Test Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen.svg)](#-development--testing)
 
 **Pure-Python Netcad NCZ/NCA CAD Inspection and High-Performance GeoJSON Conversion Engine.**
 
@@ -28,6 +28,8 @@
 
 Extracted from the high-value headless core of the **02CadGis** and **PlanX** geospatial ecosystem, **cad2geo** operates 100% headless using only Python's standard library (`struct`, `zlib`, `dataclasses`, `json`). It requires **zero proprietary CAD installations, zero QGIS runtimes, and zero GDAL C-extensions**.
 
+Beyond raw conversion, the library ships a growing suite of turnkey **civil-engineering, cadastral and cartographic** engines (Bishop slope stability, CRTN road-noise, AASHTO pavement design, superelevation, culvert hydrology, retaining walls, sight-distance triangles, earthwork cut/fill, TIN contours, quadtree tiles and more), all callable with plain Python tuples.
+
 ---
 
 ## 🔬 Key Capabilities
@@ -37,13 +39,17 @@ Extracted from the high-value headless core of the **02CadGis** and **PlanX** ge
 2. **$\mathcal{O}(1)$ Fast Layer Catalog Inspection:**
    - Scans file headers in **under 5 milliseconds**, extracting layer codes, layer names, line types, display colors, and record counts without decompressing coordinates.
 3. **Selective Layer Decoding & Memory Optimization:**
-   - Skips unneeded byte blocks in the binary stream when decoding specific layers (e.g. `layers=[1, 3, 7]`), saving up to **90% RAM** on massive municipal zoning plans (100MB+ NCZ files).
-4. **Mathematical Curve & Arc Discretization:**
+   - Skips unneeded byte blocks in the binary stream when decoding specific layers (e.g. `layer_codes=[1, 3, 7]`), saving up to **90% RAM** on massive municipal zoning plans (100MB+ NCZ files).
+4. **Fingerprinted On-disk Index Cache:**
+   - Reopening an unchanged drawing shows its layer tree instantly via a `(size, mtime_ns)`-keyed JSON cache; disable it with `CAD2GEO_NCZ_CACHE_DISABLE=1`.
+5. **Mathematical Curve & Arc Discretization:**
    - Converts circular arcs and curves into piecewise linear GIS LineStrings using exact sagitta chord tolerance ($\delta$) calculations.
-5. **Cadastral & Zoning Attribute Preservation:**
+6. **Cadastral & Zoning Attribute Preservation:**
    - Captures parcel IDs (*Ada / Parsel*), zoning parameters (*KAKS, TAKS, Yençok*), layer styles, text labels, and geometric perimeters.
-6. **Standard GeoJSON FeatureCollection Serialization:**
+7. **Standard GeoJSON FeatureCollection Serialization:**
    - Generates clean, standards-compliant GeoJSON with CRS headers and styling properties for immediate GIS web mapping.
+8. **Civil-Engineering & Cartography Engines:**
+   - Bishop slope stability, CRTN traffic noise, AASHTO `SN`, HEC-22 curb inlets, culvert sizing, superelevation runoff, retaining-wall earth pressure, road cross-sections, clothoid spirals, TIN contours, block extraction, dimension parsing, tile pyramids and QA repair — all pure Python.
 
 ---
 
@@ -53,11 +59,20 @@ Extracted from the high-value headless core of the **02CadGis** and **PlanX** ge
 pip install cad2geo
 ```
 
+Optional development tooling (tests, linting, build):
+
+```bash
+pip install -e ".[dev]"
+```
+
+**Requirements:** Python 3.9+ and the standard library only. No runtime third-party dependencies.
+
 ---
 
 ## 🚀 Quickstart & Python API
 
 ### 1. Fast Layer Catalog Inspection
+
 Inspect drawing layers and entity counts in milliseconds without loading full geometry:
 
 ```python
@@ -66,43 +81,111 @@ from cad2geo import inspect_source
 layers = inspect_source("imar_plani.ncz")
 
 for layer in layers:
-    print(f"Layer #{layer.layer_code:02d}: {layer.layer_name:<25} | Entities: {layer.record_count}")
+    families = ", ".join(sorted(layer.families)) or "-"
+    print(f"Layer #{layer.layer_code:02d}: {layer.layer_name:<25} | "
+          f"Entities: {layer.record_count} | [{families}]")
 ```
 
 ### 2. Selective Decoding & GeoJSON Export
-Decode only specific zoning boundaries and save directly as GeoJSON:
+
+Use `NetcadReader` to index once, then decode only the layers you need:
 
 ```python
-from cad2geo import parse_netcad, write_geojson
+from cad2geo import NetcadReader, write_geojson
 
-# Decode only layers 1, 3, and 7
-result = parse_netcad("imar_plani.ncz", target_layers=[1, 3, 7])
-print(f"Successfully decoded {len(result.entities)} entities across {len(result.layers)} layers.")
+reader = NetcadReader("imar_plani.ncz").index()
+print(f"Backend: {reader.backend} | Version: {reader.version_name} | CRS: {reader.epsg}")
 
-# Export to OGC GeoJSON FeatureCollection
-write_geojson(result.entities, "zoning_boundaries.geojson")
+# Decode only layers 1, 3 and 7
+entities = reader.decode_layers([1, 3, 7])
+
+# Export to an OGC GeoJSON FeatureCollection
+collection = write_geojson(entities, "zoning_boundaries.geojson")
+print(f"Wrote {len(collection['features'])} feature(s).")
 ```
 
-### 3. In-Memory Parsing & Custom Processing
-Integrate into FastAPI endpoints, AWS Lambda, or Jupyter Notebooks:
+### 3. Full Parse & Custom Processing
+
+`parse_netcad` decodes the whole drawing into stable dataclasses suitable for pipelines:
 
 ```python
-from cad2geo import parse_bytes, entities_to_feature_collection
+from cad2geo import parse_netcad, entities_to_feature_collection
 
-with open("parcels.ncz", "rb") as f:
-    raw_bytes = f.read()
+result = parse_netcad("parcels.ncz")
+print(f"Parsed {len(result.entities)} entities "
+      f"across {len(result.layer_names)} layers using {result.parser_backend}.")
 
-result = parse_bytes(raw_bytes)
 geojson_dict = entities_to_feature_collection(result.entities)
-
 print(f"Features in GeoJSON: {len(geojson_dict['features'])}")
+```
+
+### 4. DXF Conversion
+
+```python
+from cad2geo import dxf_to_geojson
+
+collection = dxf_to_geojson("survey.dxf")
+print(f"Converted {len(collection['features'])} DXF feature(s).")
+```
+
+### 5. Smart CRS Detection
+
+```python
+from cad2geo import detect_crs
+
+crs = detect_crs(proj_text="ED50 / 3 DOM 33", coords=[(11556000.0, 4280000.0)])
+print(crs.authid, "->", crs.description, f"({crs.confidence:.0%})")
+# EPSG:2208 -> ED50 / 3-degree Gauss-Kruger zone 11 (95%)
+```
+
+### 6. Civil-Engineering Calculators
+
+All engineering engines accept plain tuples/dataclasses and return rich result objects with a `.to_dict()` serialiser:
+
+```python
+from cad2geo import (
+    SlopeSliceProfile,
+    calculate_flexible_pavement_structural_number,
+    evaluate_bishop_slope_stability,
+)
+
+# Bishop simplified method of slices
+stability = evaluate_bishop_slope_stability(
+    SlopeSliceProfile(
+        cohesion_c_kpa=15.0,
+        friction_angle_phi_deg=25.0,
+        soil_unit_weight_gamma_kn_m3=19.0,
+        embankment_height_h_m=10.0,
+        slope_angle_beta_deg=30.0,
+    )
+)
+print(f"Bishop FoS: {stability.factor_of_safety_bishop:.2f}")
+
+# AASHTO 1993 flexible pavement structural number
+sn = calculate_flexible_pavement_structural_number(
+    design_traffic_esal_millions=10.0, subgrade_resilient_modulus_psi=6500.0
+)
+print(sn.to_dict())
+```
+
+### 7. Geometric QA Repair
+
+```python
+from cad2geo import clean_cad_entities, parse_netcad, write_geojson
+
+entities = parse_netcad("dirty_plan.ncz").entities
+cleaned, report = clean_cad_entities(entities, snap_tolerance=0.05, min_polygon_area=0.1)
+write_geojson(cleaned, "clean_plan.geojson")
+
+print(f"{report.endpoints_snapped} endpoints snapped, "
+      f"{report.slivers_filtered} slivers removed.")
 ```
 
 ---
 
 ## 💻 Command Line Interface (CLI)
 
-`cad2geo` comes with a high-performance CLI utility:
+`cad2geo` ships a high-performance CLI with `inspect`, `convert`, `dxf` and `clean` subcommands:
 
 ```bash
 # 1. Quick inspection of NCZ layer definitions
@@ -111,12 +194,72 @@ cad2geo inspect imar_plani.ncz
 # 2. Output layer metadata as machine-readable JSON
 cad2geo inspect imar_plani.ncz --json
 
-# 3. Convert full drawing to GeoJSON
+# 3. Convert a full drawing to GeoJSON
 cad2geo convert imar_plani.ncz master_plan.geojson
 
-# 4. Selective layer extraction with pretty-printed JSON formatting
-cad2geo convert imar_plani.ncz road_centerlines.geojson --layers 2,5 --pretty
+# 4. Selective layer extraction (only layers 2 and 5)
+cad2geo convert imar_plani.ncz road_centerlines.geojson --layers 2,5
+
+# 5. Convert an AutoCAD DXF file
+cad2geo dxf survey.dxf survey.geojson
+
+# 6. Geometric QA repair with snapping and sliver removal
+cad2geo clean dirty_plan.ncz clean_plan.geojson --snap-tolerance 0.05 --min-area 0.1
 ```
+
+Run `cad2geo --help` or `cad2geo <command> --help` for the full option list.
+
+---
+
+## 🧩 Public API Reference
+
+Everything below is importable directly from the top-level `cad2geo` package.
+
+### Readers & Conversion
+
+| Symbol | Description |
+| :--- | :--- |
+| `NetcadReader(path)` | Catalog-backed reader supporting selective, layer-by-layer decoding. |
+| `inspect_source(path)` | Lightweight NCZ/NCA layer catalog (`list[LayerSummary]`). |
+| `parse_netcad(path)` | Full parse into a `NetcadParseResult` of stable dataclasses. |
+| `is_ncz(path)` | `True` when `path` points at an `.ncz`/`.nca` file. |
+| `DXFReader`, `parse_dxf`, `dxf_to_geojson` | Pure-Python ASCII DXF reader and GeoJSON converter. |
+| `entities_to_feature_collection`, `write_geojson` | GeoJSON serialisation helpers. |
+
+### Cartography, CRS & Utility Engines
+
+| Symbol | Description |
+| :--- | :--- |
+| `detect_crs(proj_text, coords, srs_id)` | Turkish datum / Gauss-Krüger / UTM EPSG auto-detection. |
+| `sniff_csv_coordinates`, `csv_to_geojson` | Header heuristics for CSV → GeoJSON point conversion. |
+| `classify_cad_layer`, `MPYY_CATALOG` | MPYY / e-Plan layer symbology classification. |
+| `polygonize_cad_lines`, `split_features_by_cad_layer` | Topology building and per-layer feature splitting. |
+| `link_annotations_to_polygons` | Spatial text/MText ↔ parcel annotation matcher. |
+| `extract_cad_blocks` | INSERT block-reference and ATTRIB attribute extractor. |
+| `extract_cad_dimensions` | CAD dimension entity parser and summariser. |
+| `parse_cad_hatches` | Hatch pattern decoder. |
+| `slice_cad_to_tile_pyramid` | Multi-scale quadtree tile pyramid generator. |
+| `clean_cad_entities`, `snap_endpoints`, `remove_duplicate_vertices` | Geometric QA repair suite. |
+| `point_in_polygon`, `buffer_point`, `buffer_polyline`, `CADSpatialIndex` | Spatial operations and a grid index. |
+| `export_to_esri_shapefile_asc`, `export_geoparquet_metadata`, `export_flat_geobuf_schema` | Lightweight vector-export metadata helpers. |
+
+### Civil-Engineering Engines
+
+| Symbol | Description |
+| :--- | :--- |
+| `calculate_flexible_pavement_structural_number` | AASHTO 1993 flexible pavement structural number ($SN$). |
+| `calculate_curb_inlet_hydraulic_capacity` | HEC-22 curb/gutter flow and grate interception. |
+| `calculate_culvert_hydraulic_capacity` | Rational-method catchment runoff and barrel sizing. |
+| `calculate_superelevation_runoff` | AASHTO superelevation and tangent runoff transition. |
+| `evaluate_retaining_wall_stability` | Rankine earth pressure, overturning and sliding FoS. |
+| `evaluate_bishop_slope_stability` | Bishop simplified method of slices slope stability. |
+| `calculate_crtn_noise_propagation` | UK CRTN $L_{10,18h}$ / $L_{den}$ façade propagation. |
+| `evaluate_intersection_sight_triangles` | AASHTO intersection sight-distance triangles. |
+| `calculate_clothoid_spiral_curve` | Euler clothoid spiral transition curve. |
+| `generate_road_cross_sections` | Road corridor station cross-section profiles. |
+| `calculate_earthwork_cut_fill` | Prismoid earthwork cut/fill volumetric balance. |
+| `densify_cad_splines` | Adaptive Bézier spline densification. |
+| `generate_tin_contours` | Delaunay TIN surface and contour isolines. |
 
 ---
 
@@ -136,13 +279,15 @@ cad2geo convert imar_plani.ncz road_centerlines.geojson --layers 2,5 --pretty
 
 ## ⚡ Performance Benchmarks
 
-Benchmarked on complex municipal zoning drawings (100MB+ NCZ archives):
+Indicative single-threaded CPython timings on complex municipal zoning drawings (100MB+ NCZ archives):
 
 | Operation | Dataset Size | Entities | cad2geo Execution Time | Throughput |
 | :--- | :--- | :--- | :--- | :--- |
 | **Layer Catalog Inspection** | 50 MB NCZ Plan | 150,000 Entities | **4.2 ms** | $\mathcal{O}(1)$ Header Scan |
 | **Selective Layer Decode** | 50 MB NCZ Plan | 12,500 Entities | **48.6 ms** | 257,000 entities/sec |
 | **Full GeoJSON Conversion** | 25 MB NCZ Cadastre | 85,000 Entities | **182.4 ms** | 466,000 entities/sec |
+
+> Timings are illustrative and depend on hardware, drawing complexity and the number of decoded layers.
 
 ---
 
@@ -156,13 +301,18 @@ cd cad2geo
 # Install in editable mode with development dependencies
 pip install -e ".[dev]"
 
-# Run test suite
+# Run the test suite with coverage (fails under 70%)
 pytest tests/ -v --cov=cad2geo
 
-# Run linter and type checks
+# Lint and auto-format
 ruff check .
+ruff format .
+
+# Type-check the public API
 mypy src
 ```
+
+The suite lives in `tests/` and is `pytest`-compatible out of the box (`pythonpath = ["src"]` is configured, so no install step is required to run it).
 
 ---
 
@@ -176,7 +326,7 @@ If you use **cad2geo** in scientific research, GIS data engineering pipelines, o
   title     = {{cad2geo: Pure-Python Netcad NCZ/NCA CAD Parser and High-Performance GeoJSON Engine}},
   year      = {2026},
   publisher = {PyPI - Python Package Index},
-  version   = {0.1.0},
+  version   = {0.12.1},
   url       = {https://gitlab.com/geospacephilo/cad2geo}
 }
 ```

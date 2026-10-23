@@ -39,6 +39,7 @@ def write_geojson(entities: Iterable[NetcadEntity], path: str | Path) -> dict:
 
 
 def _entity_geometry(entity: NetcadEntity) -> dict | None:
+    """Map one entity to a GeoJSON geometry, or ``None`` when it has no points."""
     coords = [[coord.x, coord.y, coord.z] for coord in entity.coordinates]
     kind = entity.geometry_kind.lower()
     if not coords:
@@ -58,6 +59,7 @@ def _entity_geometry(entity: NetcadEntity) -> dict | None:
 
 
 def _entity_properties(entity: NetcadEntity) -> dict:
+    """Build the GeoJSON feature-properties mapping for *entity*."""
     return {
         "geometry_kind": entity.geometry_kind,
         "layer_code": entity.layer_code,

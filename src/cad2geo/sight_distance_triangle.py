@@ -26,6 +26,7 @@ class SightTriangleResult:
     obstructing_feature_ids: list[str]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the sight-triangle result as a JSON-serialisable mapping."""
         return {
             "clear": self.is_clear_of_obstructions,
             "sight_dist_major_m": round(self.approach_sight_distance_major_m, 2),
@@ -35,6 +36,7 @@ class SightTriangleResult:
 
 
 def _point_in_polygon(x: float, y: float, poly: Sequence[tuple[float, float]]) -> bool:
+    """Even-odd ray-casting point-in-polygon test."""
     n = len(poly)
     inside = False
     p1x, p1y = poly[0]

@@ -16,6 +16,7 @@ class SplineDensificationResult:
     coordinates: list[tuple[float, float]]
 
     def to_geojson_feature(self, properties: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Convert the densified spline into a GeoJSON LineString feature."""
         props = properties or {}
         props["length_m"] = round(self.total_curve_length_m, 2)
         props["vertices"] = self.densified_points_count
@@ -36,6 +37,7 @@ def _evaluate_cubic_bezier(
     p3: tuple[float, float],
     t: float,
 ) -> tuple[float, float]:
+    """Evaluate a cubic Bézier curve at parameter *t* in ``[0, 1]``."""
     omt = 1.0 - t
     x = omt**3 * p0[0] + 3 * omt**2 * t * p1[0] + 3 * omt * t**2 * p2[0] + t**3 * p3[0]
     y = omt**3 * p0[1] + 3 * omt**2 * t * p1[1] + 3 * omt * t**2 * p2[1] + t**3 * p3[1]
@@ -93,7 +95,9 @@ def densify_cad_splines(
     # Compute total length
     tot_len = 0.0
     for j in range(len(dense_pts) - 1):
-        tot_len += math.hypot(dense_pts[j + 1][0] - dense_pts[j][0], dense_pts[j + 1][1] - dense_pts[j][1])
+        tot_len += math.hypot(
+            dense_pts[j + 1][0] - dense_pts[j][0], dense_pts[j + 1][1] - dense_pts[j][1]
+        )
 
     return SplineDensificationResult(
         original_points_count=len(pts),

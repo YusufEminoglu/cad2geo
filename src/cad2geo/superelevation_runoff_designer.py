@@ -35,6 +35,7 @@ class SuperelevationDesignResult:
     station_cross_sections: list[StationSuperelevationCrossSection]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the superelevation design as a JSON-serialisable mapping."""
         return {
             "design_e_pct": round(self.design_superelevation_rate_pct, 2),
             "tangent_runoff_m": round(self.tangent_runoff_length_m, 1),
@@ -61,8 +62,10 @@ def calculate_superelevation_runoff(
     r = cfg.curve_radius_r_m
 
     # AASHTO Method 5 Superelevation distribution
-    e_theoretical = ((v ** 2) / (127.0 * r)) * 100.0
-    e_design = min(cfg.max_superelevation_rate_pct, max(cfg.normal_cross_slope_pct, e_theoretical * 0.45))
+    e_theoretical = ((v**2) / (127.0 * r)) * 100.0
+    e_design = min(
+        cfg.max_superelevation_rate_pct, max(cfg.normal_cross_slope_pct, e_theoretical * 0.45)
+    )
 
     # Relative maximum gradient (Delta)
     delta_grad = max(0.004, 0.0075 - 0.00004 * v)

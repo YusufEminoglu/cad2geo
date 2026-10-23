@@ -23,6 +23,7 @@ class QARepairReport:
     unclosed_polygons_fixed: int = 0
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the QA repair report as a JSON-serialisable mapping."""
         return {
             "total_input_entities": self.total_input_entities,
             "total_output_entities": self.total_output_entities,

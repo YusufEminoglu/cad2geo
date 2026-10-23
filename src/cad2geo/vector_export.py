@@ -21,7 +21,7 @@ def export_to_esri_shapefile_asc(
     for idx, e in enumerate(entities):
         if not e.coordinates:
             continue
-        lines.append(f"{idx+1} {e.layer_name}")
+        lines.append(f"{idx + 1} {e.layer_name}")
         for pt in e.coordinates:
             lines.append(f"  {pt.x:.4f} {pt.y:.4f} {pt.z:.4f}")
         lines.append("END")

@@ -30,6 +30,7 @@ class StationCrossSectionSet:
     sections: list[CrossSectionProfile]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the cross-section set as a JSON-serialisable mapping."""
         return {
             "total_sections": self.total_sections_count,
             "station_interval_m": self.station_interval_m,
@@ -43,8 +44,10 @@ class StationCrossSectionSet:
         out.parent.mkdir(parents=True, exist_ok=True)
 
         lines = [
-            "0", "SECTION",
-            "2", "ENTITIES",
+            "0",
+            "SECTION",
+            "2",
+            "ENTITIES",
         ]
 
         sheet_x = 0.0
@@ -61,29 +64,58 @@ class StationCrossSectionSet:
                 x2 = sheet_x + p2[0]
                 y2 = sheet_y + p2[1]
 
-                lines.extend([
-                    "0", "LINE",
-                    "8", "ROAD_PROFILE",
-                    "10", f"{x1:.3f}", "20", f"{y1:.3f}", "30", "0.0",
-                    "11", f"{x2:.3f}", "21", f"{y2:.3f}", "31", "0.0",
-                ])
+                lines.extend(
+                    [
+                        "0",
+                        "LINE",
+                        "8",
+                        "ROAD_PROFILE",
+                        "10",
+                        f"{x1:.3f}",
+                        "20",
+                        f"{y1:.3f}",
+                        "30",
+                        "0.0",
+                        "11",
+                        f"{x2:.3f}",
+                        "21",
+                        f"{y2:.3f}",
+                        "31",
+                        "0.0",
+                    ]
+                )
 
             # Text label: Station Km 0+xxx
-            km_str = f"Km {sec.station_chainage_m/1000.0:.3f}"
-            lines.extend([
-                "0", "TEXT",
-                "8", "STATION_LABEL",
-                "10", f"{sheet_x:.3f}", "20", f"{sheet_y - 5.0:.3f}", "30", "0.0",
-                "40", "1.5",  # Text height
-                "1", km_str,
-            ])
+            km_str = f"Km {sec.station_chainage_m / 1000.0:.3f}"
+            lines.extend(
+                [
+                    "0",
+                    "TEXT",
+                    "8",
+                    "STATION_LABEL",
+                    "10",
+                    f"{sheet_x:.3f}",
+                    "20",
+                    f"{sheet_y - 5.0:.3f}",
+                    "30",
+                    "0.0",
+                    "40",
+                    "1.5",  # Text height
+                    "1",
+                    km_str,
+                ]
+            )
 
             sheet_y += 40.0  # Stack sections vertically
 
-        lines.extend([
-            "0", "ENDSEC",
-            "0", "EOF",
-        ])
+        lines.extend(
+            [
+                "0",
+                "ENDSEC",
+                "0",
+                "EOF",
+            ]
+        )
 
         out.write_text("\n".join(lines), encoding="utf-8")
         return out

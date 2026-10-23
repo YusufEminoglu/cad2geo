@@ -22,11 +22,17 @@ class CADTileBounds:
     max_y: float
 
     def to_dict(self) -> dict[str, Any]:
+        """Return this tile's Z/X/Y index and rounded bounding box."""
         return {
             "zoom": self.zoom,
             "x": self.x,
             "y": self.y,
-            "bbox": [round(self.min_x, 2), round(self.min_y, 2), round(self.max_x, 2), round(self.max_y, 2)],
+            "bbox": [
+                round(self.min_x, 2),
+                round(self.min_y, 2),
+                round(self.max_x, 2),
+                round(self.max_y, 2),
+            ],
         }
 
 
@@ -41,6 +47,7 @@ class CADTilePyramid:
     drawing_bbox: tuple[float, float, float, float]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a summary of the tile pyramid as a JSON-serialisable mapping."""
         return {
             "min_zoom": self.min_zoom,
             "max_zoom": self.max_zoom,

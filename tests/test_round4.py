@@ -16,13 +16,19 @@ from cad2geo import (
 class TestCad2GeoRound4(unittest.TestCase):
     def test_spatial_annotation_matching(self) -> None:
         polygons = [
-            {"layer": "PARCEL", "coordinates": [(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0), (0.0, 0.0)]},
-            {"layer": "PARCEL", "coordinates": [(20.0, 0.0), (30.0, 0.0), (30.0, 10.0), (20.0, 10.0), (20.0, 0.0)]},
+            {
+                "layer": "PARCEL",
+                "coordinates": [(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0), (0.0, 0.0)],
+            },
+            {
+                "layer": "PARCEL",
+                "coordinates": [(20.0, 0.0), (30.0, 0.0), (30.0, 10.0), (20.0, 10.0), (20.0, 0.0)],
+            },
         ]
         annotations = [
             {"text": "Ada 101 / Parsel 1", "position": (5.0, 5.0)},  # Inside poly 0
-            {"text": "Ada 101 / Parsel 2", "position": (25.0, 5.0)}, # Inside poly 1
-            {"text": "Street Label", "position": (15.0, 5.0)},       # Outside but near
+            {"text": "Ada 101 / Parsel 2", "position": (25.0, 5.0)},  # Inside poly 1
+            {"text": "Street Label", "position": (15.0, 5.0)},  # Outside but near
         ]
 
         res = link_annotations_to_polygons(polygons, annotations, max_search_radius=20.0)

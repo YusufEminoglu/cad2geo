@@ -42,4 +42,6 @@ class TestCad2GeoRound6(unittest.TestCase):
 
         geojson_feature = res.to_geojson_feature({"layer": "ROAD_ALIGNMENT"})
         self.assertEqual(geojson_feature["geometry"]["type"], "LineString")
-        self.assertEqual(len(geojson_feature["geometry"]["coordinates"]), res.densified_points_count)
+        self.assertEqual(
+            len(geojson_feature["geometry"]["coordinates"]), res.densified_points_count
+        )

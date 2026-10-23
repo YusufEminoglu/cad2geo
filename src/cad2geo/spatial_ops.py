@@ -29,7 +29,9 @@ def point_in_polygon(x: float, y: float, polygon: Sequence[tuple[float, float]])
     return inside
 
 
-def buffer_point(x: float, y: float, radius: float, num_segments: int = 16) -> list[NetcadCoordinate]:
+def buffer_point(
+    x: float, y: float, radius: float, num_segments: int = 16
+) -> list[NetcadCoordinate]:
     """Generate a circular polygon buffer around a point."""
     ring: list[NetcadCoordinate] = []
     for i in range(num_segments):
@@ -43,6 +45,7 @@ def buffer_point(x: float, y: float, radius: float, num_segments: int = 16) -> l
 
 
 def _get_xy(pt: Any) -> tuple[float, float]:
+    """Coerce a point-like object (``.x``/``.y`` or indexable) to ``(x, y)``."""
     if hasattr(pt, "x") and hasattr(pt, "y"):
         return float(pt.x), float(pt.y)
     return float(pt[0]), float(pt[1])
@@ -97,11 +100,13 @@ class CADSpatialIndex:
     """Fast grid-based 2D spatial index for CAD entities."""
 
     def __init__(self, cell_size: float = 100.0) -> None:
+        """Create an index with square grid cells of *cell_size* map units."""
         self.cell_size = cell_size
         self.grid: dict[tuple[int, int], list[NetcadEntity]] = {}
         self.entities: list[NetcadEntity] = []
 
     def insert(self, entity: NetcadEntity) -> None:
+        """Add *entity* to the index under every grid cell it overlaps."""
         self.entities.append(entity)
         if not entity.coordinates:
             return
@@ -122,7 +127,9 @@ class CADSpatialIndex:
                     self.grid[key] = []
                 self.grid[key].append(entity)
 
-    def query_bbox(self, min_x: float, min_y: float, max_x: float, max_y: float) -> list[NetcadEntity]:
+    def query_bbox(
+        self, min_x: float, min_y: float, max_x: float, max_y: float
+    ) -> list[NetcadEntity]:
         """Find candidate entities intersecting query bounding box."""
         c1 = int(math.floor(min_x / self.cell_size))
         c2 = int(math.floor(max_x / self.cell_size))

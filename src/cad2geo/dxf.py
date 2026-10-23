@@ -101,8 +101,11 @@ class DXFReader:
     """Pure-Python streaming reader for ASCII DXF files."""
 
     def __init__(self, filepath_or_text: str | Path) -> None:
+        """Read a DXF file path or accept raw DXF text directly."""
         if isinstance(filepath_or_text, Path) or (
-            isinstance(filepath_or_text, str) and "\n" not in filepath_or_text and Path(filepath_or_text).exists()
+            isinstance(filepath_or_text, str)
+            and "\n" not in filepath_or_text
+            and Path(filepath_or_text).exists()
         ):
             self.raw_text = Path(filepath_or_text).read_text(encoding="utf-8", errors="replace")
         else:
@@ -152,6 +155,7 @@ class DXFReader:
         current_is_closed = False
 
         def flush_entity() -> None:
+            """Append the buffered entity code/value pairs to the output list."""
             nonlocal current_kind, current_layer, current_aci, current_coords
             nonlocal current_text, current_text_height, current_radius, current_is_closed
             if current_kind:

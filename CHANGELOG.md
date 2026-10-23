@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Changed
+- Completed type hints and docstrings across the NCZ Engine v2 (binary cursor, geometry decoders, block metadata, attribute tables, cache) and the civil-engineering result objects.
+- Applied `ruff format` to `src/` and `tests/`, and re-verified `ruff check`.
+- Rewrote README quickstart/CLI examples so every snippet matches the real public API, and documented the full public API and engineering engines.
+
+### Added
+- Edge-case tests for `polygonize_cad_lines` (reverse chaining, pre-closed rings, degenerate input) and `split_features_by_cad_layer` (layer fallbacks).
+
 ## [0.12.0] - 2026-08-30
 ### Added
 - **Geotechnical Embankment Bishop Circular Slope Stability Engine (`embankment_slope_bishop_stability.py`)**: Added `evaluate_bishop_slope_stability` solving Bishop's simplified method of slices and pore water ratio $r_u$.

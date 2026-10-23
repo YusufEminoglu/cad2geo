@@ -28,6 +28,7 @@ class ClothoidTransitionResult:
     spiral_points: list[tuple[float, float]]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the clothoid transition result as a JSON-serialisable mapping."""
         return {
             "parameter_a": round(self.spiral_parameter_a, 2),
             "spiral_length_m": round(self.spiral_length_l, 2),
@@ -58,10 +59,10 @@ def calculate_clothoid_spiral_curve(
         a_param = math.sqrt(p.circular_curve_radius_r * l_len)
     else:
         a_param = p.spiral_parameter_a
-        l_len = (a_param ** 2) / max(1e-4, p.circular_curve_radius_r)
+        l_len = (a_param**2) / max(1e-4, p.circular_curve_radius_r)
 
     total_tau = l_len / (2.0 * max(1e-4, p.circular_curve_radius_r))
-    shift_p = (l_len ** 2) / (24.0 * max(1e-4, p.circular_curve_radius_r))
+    shift_p = (l_len**2) / (24.0 * max(1e-4, p.circular_curve_radius_r))
 
     rad_bearing = math.radians(p.initial_bearing_degrees)
     cos_b = math.cos(rad_bearing)
@@ -71,11 +72,11 @@ def calculate_clothoid_spiral_curve(
 
     for i in range(num_sample_points + 1):
         s = (l_len * i) / float(num_sample_points)
-        tau = (s ** 2) / (2.0 * max(1e-4, a_param ** 2))
+        tau = (s**2) / (2.0 * max(1e-4, a_param**2))
 
         # Taylor series approximation of Fresnel integrals
-        x_local = s * (1.0 - (tau ** 2) / 10.0 + (tau ** 4) / 216.0)
-        y_local = s * (tau / 3.0 - (tau ** 3) / 42.0 + (tau ** 5) / 1320.0)
+        x_local = s * (1.0 - (tau**2) / 10.0 + (tau**4) / 216.0)
+        y_local = s * (tau / 3.0 - (tau**3) / 42.0 + (tau**5) / 1320.0)
 
         # Rotate and translate to global coordinate system
         x_glob = p.origin_point[0] + (x_local * cos_b - y_local * sin_b)

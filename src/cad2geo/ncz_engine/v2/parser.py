@@ -19,6 +19,7 @@ the layers a user actually imports.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Iterable
 
 from .attributes import decode_attribute_tables
 from .binary import Cursor
@@ -73,13 +74,14 @@ class LayerSummary:
     layer_code: int
     layer_name: str
     record_count: int = 0
-    families: set = field(default_factory=set)
+    families: set[str] = field(default_factory=set)
 
 
 class NczCatalog:
     """Indexed view of an NCZ buffer supporting selective decoding."""
 
-    def __init__(self, data: bytes):
+    def __init__(self, data: bytes) -> None:
+        """Wrap an in-memory NCZ buffer; nothing is scanned until :meth:`index`."""
         self._cursor = Cursor(data)
         self.metadata = DrawingMetadata()
         self.records: list[RecordIndex] = []
@@ -109,6 +111,7 @@ class NczCatalog:
         return self
 
     def _index_record(self, base: int, size: int, shift: int) -> None:
+        """Append a :class:`RecordIndex` for the record at *base*."""
         cursor = self._cursor
         if base + 7 >= cursor.size:
             return
@@ -149,13 +152,14 @@ class NczCatalog:
         """Decode every supported geometry record."""
         return self._decode(self.records)
 
-    def decode_layers(self, layer_codes) -> list[dict]:
+    def decode_layers(self, layer_codes: Iterable[int]) -> list[dict]:
         """Decode only records whose layer code is in *layer_codes*."""
         wanted = set(layer_codes)
         selected = [r for r in self.records if r.layer_code in wanted]
         return self._decode(selected)
 
     def _decode(self, records: list[RecordIndex]) -> list[dict]:
+        """Decode *records* and finalize each payload with drawing metadata."""
         self.index()
         cursor = self._cursor
         metadata = self.metadata
@@ -176,6 +180,7 @@ class NczCatalog:
 
     @staticmethod
     def _finalize(payload: dict, metadata: DrawingMetadata) -> None:
+        """Fill in resolved layer name and ARGB colour on *payload* in place."""
         color_code = payload.pop("_color_code", 0)
         layer_code = payload["layer_code"]
         payload["layer_name"] = metadata.layer_name(layer_code)
@@ -190,6 +195,7 @@ class NczCatalog:
     # ── attribute tables ──────────────────────────────────────────
 
     def decode_attribute_tables(self) -> list[dict]:
+        """Decode the embedded object-data (attribute) tables."""
         return decode_attribute_tables(self._cursor)
 
 

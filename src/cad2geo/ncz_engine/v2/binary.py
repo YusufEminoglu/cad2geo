@@ -27,6 +27,12 @@ def decode_oem_text(raw: bytes) -> str:
 
 
 def finite_pair_in_range(x: float, y: float) -> bool:
+    """Return True when *x*/*y* are finite and within :data:`COORDINATE_LIMIT`.
+
+    Guards decoders against reading garbage double words as coordinates:
+    Netcad stores real-world eastings/northings well below the limit, so
+    anything larger is treated as a decoding miss.
+    """
     return (
         math.isfinite(x)
         and math.isfinite(y)
@@ -44,41 +50,49 @@ class Cursor:
 
     __slots__ = ("data", "size")
 
-    def __init__(self, data: bytes):
+    def __init__(self, data: bytes) -> None:
+        """Wrap an immutable byte buffer; no copying is performed."""
         self.data = data
         self.size = len(data)
 
     def u8(self, offset: int) -> int:
+        """Read one unsigned byte at *offset* (0 when out of range)."""
         if 0 <= offset < self.size:
             return self.data[offset]
         return 0
 
     def u16(self, offset: int) -> int:
+        """Read a little-endian ``uint16`` at *offset* (0 when out of range)."""
         if 0 <= offset and offset + 2 <= self.size:
             return int.from_bytes(self.data[offset : offset + 2], "little")
         return 0
 
     def u32(self, offset: int) -> int:
+        """Read a little-endian ``uint32`` at *offset* (0 when out of range)."""
         if 0 <= offset and offset + 4 <= self.size:
             return int.from_bytes(self.data[offset : offset + 4], "little")
         return 0
 
     def f32(self, offset: int) -> float:
+        """Read a little-endian ``float32`` at *offset* (0.0 when out of range)."""
         if 0 <= offset and offset + 4 <= self.size:
             return _F32.unpack_from(self.data, offset)[0]
         return 0.0
 
     def f64(self, offset: int) -> float:
+        """Read a little-endian ``float64`` at *offset* (0.0 when out of range)."""
         if 0 <= offset and offset + 8 <= self.size:
             return _F64.unpack_from(self.data, offset)[0]
         return 0.0
 
     def raw(self, offset: int, length: int) -> bytes:
+        """Return up to *length* raw bytes from *offset*, clamped to the buffer."""
         if length <= 0 or offset >= self.size or offset < 0:
             return b""
         return self.data[offset : min(offset + length, self.size)]
 
     def text(self, offset: int, length: int) -> str:
+        """Decode *length* OEM bytes at *offset* into text."""
         return decode_oem_text(self.raw(offset, length))
 
     def length_prefixed_text(
@@ -102,4 +116,5 @@ class Cursor:
         return float(value)
 
     def find(self, needle: bytes, start: int = 0) -> int:
+        """Return the first index of *needle* at or after *start*, else -1."""
         return self.data.find(needle, start)

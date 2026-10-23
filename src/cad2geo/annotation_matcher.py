@@ -28,11 +28,14 @@ class AnnotationMatchResult:
     matches: list[MatchedPolygonAnnotation]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return this match report as a JSON-serialisable mapping."""
         return {
             "total_annotations": self.total_annotations_processed,
             "matched_count": self.matched_count,
             "unmatched_count": self.unmatched_count,
-            "match_rate_pct": round((self.matched_count / max(1, self.total_annotations_processed)) * 100.0, 1),
+            "match_rate_pct": round(
+                (self.matched_count / max(1, self.total_annotations_processed)) * 100.0, 1
+            ),
             "matches": [
                 {
                     "poly_idx": m.polygon_index,
@@ -47,6 +50,7 @@ class AnnotationMatchResult:
 
 
 def _calc_centroid(polygon: Sequence[tuple[float, float]]) -> tuple[float, float]:
+    """Return the arithmetic-mean centroid of a polygon's vertices."""
     if not polygon:
         return (0.0, 0.0)
     sx = sum(p[0] for p in polygon)
@@ -55,8 +59,12 @@ def _calc_centroid(polygon: Sequence[tuple[float, float]]) -> tuple[float, float
 
 
 def link_annotations_to_polygons(
-    polygons: list[dict[str, Any]],  # List of dicts with 'coordinates': list[tuple[float, float]], 'layer': str
-    annotations: list[dict[str, Any]],  # List of dicts with 'text': str, 'position': tuple[float, float]
+    polygons: list[
+        dict[str, Any]
+    ],  # List of dicts with 'coordinates': list[tuple[float, float]], 'layer': str
+    annotations: list[
+        dict[str, Any]
+    ],  # List of dicts with 'text': str, 'position': tuple[float, float]
     max_search_radius: float = 50.0,
 ) -> AnnotationMatchResult:
     """Spatially associate floating CAD text/MText labels with their enclosing or nearest parcel boundaries."""
@@ -78,7 +86,9 @@ def link_annotations_to_polygons(
         for p_idx, p_data in enumerate(polygons):
             coords = p_data.get("coordinates", [])
             if len(coords) >= 3 and point_in_polygon(pos[0], pos[1], coords):
-                c_dist = math.hypot(pos[0] - poly_centroids[p_idx][0], pos[1] - poly_centroids[p_idx][1])
+                c_dist = math.hypot(
+                    pos[0] - poly_centroids[p_idx][0], pos[1] - poly_centroids[p_idx][1]
+                )
                 matches.append(
                     MatchedPolygonAnnotation(
                         polygon_index=p_idx,

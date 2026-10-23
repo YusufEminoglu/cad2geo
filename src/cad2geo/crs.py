@@ -50,6 +50,7 @@ class DetectedCRS:
     reason: str
 
     def __str__(self) -> str:
+        """Human-readable one-line summary of the detection result."""
         return f"{self.authid} ({self.description}, {int(self.confidence * 100)}% confidence: {self.reason})"
 
 

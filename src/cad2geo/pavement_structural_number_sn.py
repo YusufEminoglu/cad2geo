@@ -30,6 +30,7 @@ class PavementStructuralDesignResult:
     total_pavement_thickness_cm: float
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the pavement design result as a JSON-serialisable mapping."""
         return {
             "required_sn": round(self.required_structural_number_sn, 2),
             "provided_sn": round(self.provided_structural_number_sn, 2),
@@ -59,7 +60,9 @@ def calculate_flexible_pavement_structural_number(
     # Calculate Provided SN
     provided_sn = (
         ly.a1_surface_layer_coeff * ly.asphalt_surface_thickness_d1_inches
-        + ly.a2_base_layer_coeff * ly.crushed_stone_base_thickness_d2_inches * ly.m2_base_drainage_coeff
+        + ly.a2_base_layer_coeff
+        * ly.crushed_stone_base_thickness_d2_inches
+        * ly.m2_base_drainage_coeff
         + ly.a3_subbase_layer_coeff * ly.subbase_thickness_d3_inches * ly.m3_subbase_drainage_coeff
     )
 
@@ -72,7 +75,11 @@ def calculate_flexible_pavement_structural_number(
     is_adequate = provided_sn >= required_sn
     margin = provided_sn - required_sn
 
-    tot_inches = ly.asphalt_surface_thickness_d1_inches + ly.crushed_stone_base_thickness_d2_inches + ly.subbase_thickness_d3_inches
+    tot_inches = (
+        ly.asphalt_surface_thickness_d1_inches
+        + ly.crushed_stone_base_thickness_d2_inches
+        + ly.subbase_thickness_d3_inches
+    )
     tot_cm = tot_inches * 2.54
 
     return PavementStructuralDesignResult(

@@ -34,6 +34,7 @@ class RawBlock:
 
     @property
     def end(self) -> int:
+        """Absolute offset one past the last byte of the block."""
         return self.offset + self.size + 1
 
 
@@ -83,18 +84,26 @@ class DrawingMetadata:
     epsg: str = ""
 
     def layer_name(self, layer_code: int) -> str:
+        """Return the layer name for *layer_code* (0/1-based tolerant), else ``""``."""
         for candidate in (layer_code, layer_code - 1):
             if 0 <= candidate < len(self.layer_names):
                 return self.layer_names[candidate]
         return ""
 
     def layer_color(self, layer_code: int) -> int | None:
+        """Return the normalized ARGB colour for *layer_code*, or ``None``."""
         for candidate in (layer_code, layer_code - 1):
             if 0 <= candidate < len(self.layer_colors):
                 return _normalize_color(self.layer_colors[candidate])
         return None
 
     def resolve_color(self, layer_code: int, color_code: int) -> int | None:
+        """Resolve a per-feature pen code to an ARGB colour.
+
+        Netcad's two reserved pen colours (1 = red, 255 = blue) take
+        precedence over the layer colour; any other non-zero code, and any
+        code on a layer without a colour, resolves to ``None`` (unknown).
+        """
         if color_code == 1:
             return _argb(0, 0, 255)
         if color_code == 255:
@@ -104,6 +113,7 @@ class DrawingMetadata:
         return self.layer_color(layer_code)
 
     def to_dict(self) -> dict:
+        """Return the drawing metadata as a JSON-serialisable mapping."""
         return {
             "layer_names": list(self.layer_names),
             "layer_colors": list(self.layer_colors),
@@ -114,6 +124,7 @@ class DrawingMetadata:
 
     @classmethod
     def from_dict(cls, data: dict) -> "DrawingMetadata":
+        """Rebuild drawing metadata from a :meth:`to_dict` mapping."""
         return cls(
             layer_names=list(data.get("layer_names", [])),
             layer_colors=list(data.get("layer_colors", [])),
@@ -124,6 +135,7 @@ class DrawingMetadata:
 
 
 def _argb(red: int, green: int, blue: int) -> int:
+    """Pack an opaque ARGB integer from 8-bit red/green/blue channels."""
     return (255 << 24) | (red << 16) | (green << 8) | blue
 
 

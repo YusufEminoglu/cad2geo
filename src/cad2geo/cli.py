@@ -13,6 +13,7 @@ from .reader import NetcadReader, parse_netcad
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the ``cad2geo`` argument parser with its subcommands."""
     parser = argparse.ArgumentParser(
         prog="cad2geo",
         description="Inspect and convert CAD/Netcad drawing data for geospatial workflows.",
@@ -36,15 +37,22 @@ def build_parser() -> argparse.ArgumentParser:
     dxf_parser.add_argument("source", type=Path)
     dxf_parser.add_argument("output", type=Path)
 
-    clean_parser = subparsers.add_parser("clean", help="Perform geometric QA repair on CAD drawing and output clean GeoJSON.")
+    clean_parser = subparsers.add_parser(
+        "clean", help="Perform geometric QA repair on CAD drawing and output clean GeoJSON."
+    )
     clean_parser.add_argument("source", type=Path)
     clean_parser.add_argument("output", type=Path)
-    clean_parser.add_argument("--snap-tolerance", type=float, default=0.05, help="Snap tolerance in map units.")
-    clean_parser.add_argument("--min-area", type=float, default=0.1, help="Minimum polygon area to retain.")
+    clean_parser.add_argument(
+        "--snap-tolerance", type=float, default=0.05, help="Snap tolerance in map units."
+    )
+    clean_parser.add_argument(
+        "--min-area", type=float, default=0.1, help="Minimum polygon area to retain."
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Entry point for the ``cad2geo`` console script."""
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "inspect":
@@ -60,6 +68,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _inspect(args: argparse.Namespace) -> int:
+    """Run the ``inspect`` subcommand (text or JSON layer catalog)."""
     reader = NetcadReader(args.source).index()
     summaries = reader.layer_summaries()
     if args.json:
@@ -100,6 +109,7 @@ def _inspect(args: argparse.Namespace) -> int:
 
 
 def _convert(args: argparse.Namespace) -> int:
+    """Run the ``convert`` subcommand (NCZ/NCA to GeoJSON)."""
     if args.layers:
         layer_codes = [int(part.strip()) for part in args.layers.split(",") if part.strip()]
         reader = NetcadReader(args.source).index()
@@ -112,6 +122,7 @@ def _convert(args: argparse.Namespace) -> int:
 
 
 def _dxf(args: argparse.Namespace) -> int:
+    """Run the ``dxf`` subcommand (DXF to GeoJSON)."""
     from .dxf import dxf_to_geojson
 
     collection = dxf_to_geojson(args.source)
@@ -122,6 +133,7 @@ def _dxf(args: argparse.Namespace) -> int:
 
 
 def _clean(args: argparse.Namespace) -> int:
+    """Run the ``clean`` subcommand (geometric QA repair to GeoJSON)."""
     from .qa_cleaner import clean_cad_entities
 
     raw_entities = parse_netcad(args.source).entities

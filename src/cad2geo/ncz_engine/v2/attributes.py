@@ -54,34 +54,40 @@ def find_attribute_markers(cursor: Cursor) -> list[AttributeMarker]:
 
 
 def _u16(chunk: bytes, offset: int) -> int:
+    """Read a little-endian ``uint16`` from *chunk* (0 when out of range)."""
     if 0 <= offset and offset + 2 <= len(chunk):
         return int.from_bytes(chunk[offset : offset + 2], "little")
     return 0
 
 
 def _u32(chunk: bytes, offset: int) -> int:
+    """Read a little-endian ``uint32`` from *chunk* (0 when out of range)."""
     if 0 <= offset and offset + 4 <= len(chunk):
         return int.from_bytes(chunk[offset : offset + 4], "little")
     return 0
 
 
 def _f32(chunk: bytes, offset: int) -> float:
+    """Read a little-endian ``float32`` from *chunk* (0.0 when out of range)."""
     if 0 <= offset and offset + 4 <= len(chunk):
         return _F32.unpack_from(chunk, offset)[0]
     return 0.0
 
 
 def _f64(chunk: bytes, offset: int) -> float:
+    """Read a little-endian ``float64`` from *chunk* (0.0 when out of range)."""
     if 0 <= offset and offset + 8 <= len(chunk):
         return _F64.unpack_from(chunk, offset)[0]
     return 0.0
 
 
 def _byte(chunk: bytes, offset: int) -> int:
+    """Read one byte from *chunk* (0 when out of range)."""
     return chunk[offset] if 0 <= offset < len(chunk) else 0
 
 
 def _safe_round(value: float) -> float | None:
+    """Round to 6 decimals, mapping non-finite input to ``None``."""
     if not math.isfinite(value):
         return None
     if abs(value) < 1e-12:
@@ -90,6 +96,7 @@ def _safe_round(value: float) -> float | None:
 
 
 def _looks_like_coordinate(x: float | None, y: float | None) -> bool:
+    """Return True when *(x, y)* looks like a real projected coordinate pair."""
     return (
         x is not None
         and y is not None
@@ -102,6 +109,7 @@ def _looks_like_coordinate(x: float | None, y: float | None) -> bool:
 
 
 def _collect_ascii_fields(chunk: bytes) -> list[str]:
+    """Collect distinct printable length-prefixed ASCII strings from *chunk*."""
     values: list[str] = []
     seen: set[str] = set()
     for index in range(max(0, len(chunk) - 1)):
@@ -120,6 +128,7 @@ def _collect_ascii_fields(chunk: bytes) -> list[str]:
 
 
 def _decode_label_row(chunk: bytes, label_text: str, label_length: int, row_index: int) -> dict:
+    """Decode a label-style attribute row into ``{row_index, columns}``."""
     separator = 29 + label_length
     columns = {
         "row_variant": "label",
@@ -148,6 +157,7 @@ def _decode_label_row(chunk: bytes, label_text: str, label_length: int, row_inde
 
 
 def _decode_segment_row(chunk: bytes, row_index: int) -> dict:
+    """Decode a segment-style (three-coordinate) attribute row."""
     columns = {
         "row_variant": "segment",
         "record_length": len(chunk),
@@ -172,6 +182,7 @@ def _decode_segment_row(chunk: bytes, row_index: int) -> dict:
 
 
 def _decode_ascii_row(chunk: bytes, table_ref: str, row_index: int) -> dict:
+    """Fallback decoder: expose the raw printable fields of an unknown row."""
     values = _collect_ascii_fields(chunk)
     columns = {
         "row_variant": "unknown",

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import Any
 
 from .binary import Cursor, finite_pair_in_range
 
@@ -30,18 +31,22 @@ class GeometryRecord:
 
     @property
     def geometry_type(self) -> int:
+        """Numeric Netcad geometry-type code stored at ``base + 6``."""
         return self.cursor.u8(self.base + 6)
 
     @property
     def layer_code(self) -> int:
+        """Layer index the record belongs to, stored at ``base + 7``."""
         return self.cursor.u8(self.base + 7)
 
     @property
     def color_code(self) -> int:
+        """Per-feature pen/colour code stored at ``base + 37``."""
         return self.cursor.u8(self.base + 37)
 
     @property
     def end(self) -> int:
+        """Absolute offset one past the last byte of the record."""
         return self.base + self.size + 1
 
 
@@ -50,7 +55,8 @@ def map_point(stored_first: float, stored_second: float, z: float = 0.0) -> dict
     return {"x": stored_second, "y": stored_first, "z": z}
 
 
-def _entity(record: GeometryRecord, kind: str, coordinates: list[dict], **extra) -> dict:
+def _entity(record: GeometryRecord, kind: str, coordinates: list[dict], **extra: Any) -> dict:
+    """Build the neutral entity payload shared by every geometry decoder."""
     payload = {
         "geometry_kind": kind,
         "layer_code": record.layer_code,
@@ -77,6 +83,7 @@ def _entity(record: GeometryRecord, kind: str, coordinates: list[dict], **extra)
 
 
 def _first_vertex(record: GeometryRecord) -> tuple[float, float, float]:
+    """Read the record's primary vertex (northing, easting, f32 z)."""
     cursor = record.cursor
     first = cursor.f64(record.base + 8)
     second = cursor.f64(record.base + 16)
@@ -85,6 +92,7 @@ def _first_vertex(record: GeometryRecord) -> tuple[float, float, float]:
 
 
 def _z_with_fallback(record: GeometryRecord) -> float:
+    """Return the primary f32 elevation, falling back to the secondary slot."""
     z = record.cursor.f32(record.base + 24)
     if z == 0:
         z = record.cursor.f32(record.base + 28)
@@ -95,6 +103,7 @@ def _z_with_fallback(record: GeometryRecord) -> float:
 
 
 def _dist(a: dict, b: dict) -> float:
+    """Euclidean 3D distance between two point dicts."""
     dx = a["x"] - b["x"]
     dy = a["y"] - b["y"]
     dz = a["z"] - b["z"]
@@ -102,6 +111,7 @@ def _dist(a: dict, b: dict) -> float:
 
 
 def _points_equal(a: dict, b: dict) -> bool:
+    """Return True when two points coincide within a 1 mm tolerance."""
     return (
         abs(a["x"] - b["x"]) < 0.001
         and abs(a["y"] - b["y"]) < 0.001
@@ -137,6 +147,7 @@ def _drop_collinear(points: list[dict]) -> list[dict]:
 
 
 def _ring_is_closed(points: list[dict]) -> bool:
+    """Heuristically decide whether a vertex list forms a closed ring."""
     if len(points) < 4:
         return False
     if _points_equal(points[0], points[-1]):
@@ -153,6 +164,7 @@ def _ring_is_closed(points: list[dict]) -> bool:
 
 
 def _lengths_close(a: float, b: float) -> bool:
+    """Return True when two edge lengths match within a 2% (min 0.02) band."""
     return abs(a - b) <= max(max(abs(a), abs(b)) * 0.02, 0.02)
 
 
@@ -242,6 +254,7 @@ def _smart_object_ring(
 
 
 def decode_point(record: GeometryRecord) -> dict | None:
+    """Decode a ``Point``/``Nokta`` record into an entity dict."""
     first, second, _ = _first_vertex(record)
     if not finite_pair_in_range(first, second):
         return None
@@ -256,6 +269,7 @@ def decode_point(record: GeometryRecord) -> dict | None:
 
 
 def decode_line(record: GeometryRecord) -> dict | None:
+    """Decode a two-endpoint ``Line``/``Çizgi`` record."""
     cursor = record.cursor
     first_a, second_a, z_a = _first_vertex(record)
     tail = record.base + record.size
@@ -270,6 +284,7 @@ def decode_line(record: GeometryRecord) -> dict | None:
 
 
 def decode_circle(record: GeometryRecord) -> dict | None:
+    """Decode a ``Circle``/``Çember`` record (centre + radius)."""
     cursor = record.cursor
     first, second, z = _first_vertex(record)
     if not finite_pair_in_range(first, second):
@@ -279,6 +294,7 @@ def decode_circle(record: GeometryRecord) -> dict | None:
 
 
 def decode_arc(record: GeometryRecord) -> dict | None:
+    """Decode an ``Arc``/``Yay`` record (centre, radius, sweep angles)."""
     cursor = record.cursor
     first, second, z = _first_vertex(record)
     if not finite_pair_in_range(first, second):
@@ -295,6 +311,7 @@ def decode_arc(record: GeometryRecord) -> dict | None:
 
 
 def _text_payload(record: GeometryRecord) -> str:
+    """Return the first length-prefixed string found in the record's text slots."""
     cursor = record.cursor
     shifted = record.base + record.shift
     for length_offset, text_offset in (
@@ -310,6 +327,7 @@ def _text_payload(record: GeometryRecord) -> str:
 
 
 def decode_text(record: GeometryRecord) -> dict | None:
+    """Decode a ``Text``/``Yazı`` annotation (payload, height, rotation)."""
     cursor = record.cursor
     first, second, _ = _first_vertex(record)
     if not finite_pair_in_range(first, second):
@@ -334,6 +352,7 @@ def decode_text(record: GeometryRecord) -> dict | None:
 
 
 def decode_symbol(record: GeometryRecord) -> dict | None:
+    """Decode a point ``Symbol`` record (``S<n>`` code, size, rotation)."""
     cursor = record.cursor
     first, second, z = _first_vertex(record)
     if not finite_pair_in_range(first, second):
@@ -358,6 +377,7 @@ def decode_symbol(record: GeometryRecord) -> dict | None:
 
 
 def decode_polyline(record: GeometryRecord) -> dict | None:
+    """Decode a polyline; returns a ``Polygon`` when the ring closes."""
     cursor = record.cursor
     shifted = record.base + record.shift
     label = cursor.text(shifted + 87, cursor.u8(shifted + 86))
@@ -394,6 +414,7 @@ def decode_polyline(record: GeometryRecord) -> dict | None:
 
 
 def decode_compressed_curve(record: GeometryRecord) -> dict | None:
+    """Decode an origin + float32 delta polyline (compressed curve)."""
     cursor = record.cursor
     origin_first = cursor.f64(record.base + 8)
     origin_second = cursor.f64(record.base + 16)
@@ -438,6 +459,7 @@ def decode_compressed_curve(record: GeometryRecord) -> dict | None:
 
 
 def decode_box(record: GeometryRecord) -> dict | None:
+    """Decode an axis/rotation ``Box`` into a rotated rectangle polygon."""
     cursor = record.cursor
     first_a = cursor.f64(record.base + 8)
     second_a = cursor.f64(record.base + 16)
@@ -489,6 +511,7 @@ def _plan_box_name(record: GeometryRecord) -> str:
 
 
 def _is_name_byte(value: int) -> bool:
+    """Return True for bytes allowed inside a token name (``[A-Za-z0-9_-]``)."""
     return 48 <= value <= 57 or 65 <= value <= 90 or 97 <= value <= 122 or value in (45, 95)
 
 
@@ -506,6 +529,7 @@ def _printable_prefixed_name(cursor: Cursor, start: int, end: int) -> str:
 
 
 def decode_map_sheet(record: GeometryRecord) -> dict | None:
+    """Decode a map-sheet (``pafta``) corner rectangle into a polygon."""
     cursor = record.cursor
     first_a = cursor.f64(record.base + 50)
     second_a = cursor.f64(record.base + 58)
@@ -537,9 +561,11 @@ def decode_map_sheet(record: GeometryRecord) -> dict | None:
 
 
 def decode_triangle(record: GeometryRecord) -> dict | None:
+    """Decode a three-vertex triangle, rejecting degenerate (zero-area) ones."""
     cursor = record.cursor
 
-    def vertex(first_at: int, second_at: int, z_at: int | None = None):
+    def vertex(first_at: int, second_at: int, z_at: int | None = None) -> dict | None:
+        """Decode one bounded triangle vertex, or ``None`` when out of range."""
         if record.base + first_at + 8 > cursor.size or record.base + second_at + 8 > cursor.size:
             return None
         first = cursor.f64(record.base + first_at)
@@ -565,6 +591,7 @@ def decode_triangle(record: GeometryRecord) -> dict | None:
 
 
 def decode_block_reference(record: GeometryRecord) -> dict | None:
+    """Decode a block (symbol library) reference instance."""
     cursor = record.cursor
     first, second, z = _first_vertex(record)
     if not finite_pair_in_range(first, second):
@@ -580,6 +607,7 @@ def decode_block_reference(record: GeometryRecord) -> dict | None:
 
 
 def decode_smart_object(record: GeometryRecord) -> dict | None:
+    """Decode a ``SmartObject`` (parametric object) record."""
     cursor = record.cursor
     first_a = cursor.f64(record.base + 8)
     second_a = cursor.f64(record.base + 16)
@@ -587,6 +615,7 @@ def decode_smart_object(record: GeometryRecord) -> dict | None:
         return None
 
     def bounded_f64(offset: int) -> float:
+        """Read an ``f64`` at *offset* only when fully inside the buffer."""
         if record.base + offset + 8 <= cursor.size:
             return cursor.f64(record.base + offset)
         return 0.0
@@ -629,6 +658,7 @@ def decode_smart_object(record: GeometryRecord) -> dict | None:
 
 
 def _ascii_token(cursor: Cursor, start: int, end: int) -> str:
+    """First ASCII token of length >= 3 inside ``[start, end)``."""
     bounded = min(end, cursor.size)
     position = max(0, start)
     while position < bounded:

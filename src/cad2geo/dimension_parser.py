@@ -31,6 +31,7 @@ class DimensionSummary:
     dimensions: list[DimensionEntity]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the dimension summary as a JSON-serialisable mapping."""
         return {
             "total_dimensions": self.total_dimensions,
             "mean_measured_distance": round(self.mean_measured_distance, 2),

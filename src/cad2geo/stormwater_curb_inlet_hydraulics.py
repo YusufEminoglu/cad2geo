@@ -27,6 +27,7 @@ class CurbGutterFlowResult:
     bypass_discharge_q_m3s: float
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the curb-inlet hydraulic result as a JSON-serialisable mapping."""
         return {
             "discharge_q_m3s": round(self.design_discharge_q_m3s, 3),
             "spread_t_m": round(self.gutter_flow_spread_t_m, 2),
@@ -56,7 +57,7 @@ def calculate_curb_inlet_hydraulic_capacity(
     # Solve for spread T (m)
     km = 0.376
     numerator = q * p.manning_roughness_n
-    denominator = km * (sx ** (5.0 / 3.0)) * (s0 ** 0.5)
+    denominator = km * (sx ** (5.0 / 3.0)) * (s0**0.5)
     spread_t = (numerator / max(1e-6, denominator)) ** (3.0 / 8.0)
 
     depth_d = spread_t * sx

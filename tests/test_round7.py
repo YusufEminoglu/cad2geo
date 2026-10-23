@@ -26,7 +26,9 @@ class TestCad2GeoRound7(unittest.TestCase):
 
     def test_intersection_sight_distance_triangle(self) -> None:
         major = IntersectionLegProfile(leg_id="Major_East", design_speed_kmh=50.0)
-        minor = IntersectionLegProfile(leg_id="Minor_North", design_speed_kmh=30.0, is_major_road=False)
+        minor = IntersectionLegProfile(
+            leg_id="Minor_North", design_speed_kmh=30.0, is_major_road=False
+        )
 
         # Clear case
         res_clear = evaluate_intersection_sight_triangles(

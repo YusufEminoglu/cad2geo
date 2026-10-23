@@ -29,6 +29,7 @@ class CutFillVolumeReport:
     cells: list[PrismoidCell]
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the cut/fill report as a JSON-serialisable mapping."""
         return {
             "total_cut_m3": round(self.total_cut_volume_m3, 2),
             "total_fill_m3": round(self.total_fill_volume_m3, 2),
@@ -40,19 +41,17 @@ class CutFillVolumeReport:
 
 def calculate_earthwork_cut_fill(
     existing_terrain_grid: Sequence[tuple[float, float, float]],  # (x, y, existing_z)
-    design_surface_grid: Sequence[tuple[float, float, float]],   # (x, y, design_z)
+    design_surface_grid: Sequence[tuple[float, float, float]],  # (x, y, design_z)
     cell_size_m: float = 5.0,
     compaction_shrinkage_factor: float = 1.15,
 ) -> CutFillVolumeReport:
     """Compute precision cut and fill earthwork volume between terrain and proposed grading surface."""
     # Map points by grid index (round to nearest grid step)
     exist_map = {
-        (round(p[0] / cell_size_m), round(p[1] / cell_size_m)): p[2]
-        for p in existing_terrain_grid
+        (round(p[0] / cell_size_m), round(p[1] / cell_size_m)): p[2] for p in existing_terrain_grid
     }
     design_map = {
-        (round(p[0] / cell_size_m), round(p[1] / cell_size_m)): p[2]
-        for p in design_surface_grid
+        (round(p[0] / cell_size_m), round(p[1] / cell_size_m)): p[2] for p in design_surface_grid
     }
 
     common_keys = set(exist_map.keys()).intersection(set(design_map.keys()))

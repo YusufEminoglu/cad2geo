@@ -32,6 +32,7 @@ class RetainingWallStabilityResult:
     is_wall_stable: bool
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the wall stability result as a JSON-serialisable mapping."""
         return {
             "ka": round(self.active_earth_pressure_coeff_ka, 3),
             "thrust_pa_kn_m": round(self.total_active_thrust_pa_kn_m, 2),
@@ -58,7 +59,7 @@ def evaluate_retaining_wall_stability(
 
     # Active thrust components:
     # 1. Soil triangular pressure: P_a1 = 0.5 * gamma * H^2 * Ka
-    p_a1 = 0.5 * p.soil_unit_weight_kn_m3 * (h ** 2) * ka
+    p_a1 = 0.5 * p.soil_unit_weight_kn_m3 * (h**2) * ka
     # 2. Surcharge rectangular pressure: P_a2 = q * H * Ka
     p_a2 = p.surcharge_load_q_kpa * h * ka
     tot_thrust = p_a1 + p_a2

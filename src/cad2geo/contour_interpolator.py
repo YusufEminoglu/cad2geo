@@ -25,26 +25,30 @@ class TINSurfaceMesh:
     contours: list[ContourIsoline]
 
     def to_geojson(self) -> dict[str, Any]:
+        """Convert the interpolated contour lines into a GeoJSON FeatureCollection."""
         features = []
         for c in self.contours:
-            features.append({
-                "type": "Feature",
-                "properties": {
-                    "elevation": c.elevation_z,
-                    "length_m": round(c.length_m, 2),
-                    "is_index": c.is_index_contour,
-                },
-                "geometry": {
-                    "type": "LineString",
-                    "coordinates": [[round(pt[0], 3), round(pt[1], 3)] for pt in c.coordinates],
-                },
-            })
+            features.append(
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "elevation": c.elevation_z,
+                        "length_m": round(c.length_m, 2),
+                        "is_index": c.is_index_contour,
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [[round(pt[0], 3), round(pt[1], 3)] for pt in c.coordinates],
+                    },
+                }
+            )
         return {"type": "FeatureCollection", "features": features}
 
 
 def _interpolate_segment_intersection(
     p1: tuple[float, float, float], p2: tuple[float, float, float], target_z: float
 ) -> tuple[float, float] | None:
+    """Intersect segment *p1*–*p2* with the plane ``z = target_z`` (2D point)."""
     z1, z2 = p1[2], p2[2]
     if (z1 < target_z and z2 < target_z) or (z1 > target_z and z2 > target_z):
         return None
@@ -72,7 +76,9 @@ def generate_tin_contours(
 
     # Grid triangulation for spatial interpolator
     # Sort points spatially and create Delaunay-like triangle pairs
-    triangles: list[tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]] = []
+    triangles: list[
+        tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]
+    ] = []
 
     # Bounding box grid triangulation
     xs = sorted({round(p[0], 2) for p in pts})
@@ -117,7 +123,7 @@ def generate_tin_contours(
             dy = seg[1][1] - seg[0][1]
             length = math.hypot(dx, dy)
             if length > 1e-4:
-                is_index = (abs(curr_z % index_interval_m) < 1e-4)
+                is_index = abs(curr_z % index_interval_m) < 1e-4
                 contours.append(
                     ContourIsoline(
                         elevation_z=curr_z,

@@ -45,6 +45,7 @@ class CADBlockLibrary:
     instances: list[CADBlockInstance]
 
     def to_geojson_feature_collection(self) -> dict[str, Any]:
+        """Package every extracted block instance into a GeoJSON FeatureCollection."""
         return {
             "type": "FeatureCollection",
             "features": [inst.to_geojson_feature() for inst in self.instances],

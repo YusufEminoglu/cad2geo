@@ -1,3 +1,11 @@
+"""cad2geo: pure-Python CAD (NCZ/NCA/DXF) to GIS conversion and civil-engineering toolkit.
+
+The package exposes Netcad readers, GeoJSON/DXF converters, coordinate-system
+detection, geometry QA helpers, and standalone engineering calculators.  All
+public symbols are re-exported from this module so that both the Python API and
+the ``cad2geo`` command-line entry point share a single, stable surface.
+"""
+
 __version__ = "0.12.1"
 __author__ = "Yusuf Eminoğlu"
 

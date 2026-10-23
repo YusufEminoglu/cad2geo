@@ -67,6 +67,28 @@ pip install -e ".[dev]"
 
 **Requirements:** Python 3.9+ and the standard library only. No runtime third-party dependencies.
 
+### Compatibility matrix
+
+| Component | Supported |
+| :--- | :--- |
+| Python | 3.9, 3.10, 3.11, 3.12, 3.13 |
+| Operating systems | Windows, macOS, Linux (pure Python, no compiled extensions) |
+| Input formats | Netcad `.ncz` / `.nca`, AutoCAD `.dxf`, delimited text via `csv_to_geojson` |
+| Output formats | GeoJSON, `GeoJSON` strings/streams, lightweight Shapefile/GeoParquet/GeoBuf metadata |
+| Runtime dependencies | None (the `[dev]` extra adds pytest, coverage, ruff, mypy, build and twine) |
+| Typing | Fully annotated public API with a bundled `py.typed` marker |
+
+### Troubleshooting
+
+| Symptom | Likely cause and fix |
+| :--- | :--- |
+| `FileNotFoundError` from `NetcadReader` / `parse_netcad` | The path is relative to the current working directory. Resolve it with `Path(...).resolve()` before calling the API. |
+| Layer list looks stale after replacing a file | Delete the sidecar JSON cache next to the drawing, or set `CAD2GEO_NCZ_CACHE_DISABLE=1` for the session. |
+| `UnicodeEncodeError` in a Windows terminal | The CLI prints Turkish characters and emoji. Run `set PYTHONUTF8=1` (PowerShell: `$env:PYTHONUTF8=1`) or use Windows Terminal. |
+| High memory use on 100 MB+ plans | Call `inspect_source()` first and decode only the required layers with `reader.decode_layers([...])`. |
+| CRS confidence is low | Pass both `proj_text=` and representative `coords=` to `detect_crs()`; inspect `DetectedCRS.authid` before exporting. |
+| DXF entities are missing | Only model-space `POINT`, `LINE`, `LWPOLYLINE`, `POLYLINE`, `ARC`, `CIRCLE`, `TEXT`/`MTEXT` and `INSERT` are converted; explode unsupported proxy objects in CAD first. |
+
 ---
 
 ## 🚀 Quickstart & Python API

@@ -59,11 +59,11 @@ def densify_cad_splines(
         p0, p1 = pts[0], pts[1]
         dist = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
         steps = max(samples_per_segment, int(math.ceil(dist / max(0.1, max_segment_length_m))))
-        dense_pts = []
+        linear_pts: list[tuple[float, float]] = []
         for i in range(steps + 1):
             t = i / float(steps)
-            dense_pts.append((p0[0] + t * (p1[0] - p0[0]), p0[1] + t * (p1[1] - p0[1])))
-        return SplineDensificationResult(len(pts), len(dense_pts), dist, dense_pts)
+            linear_pts.append((p0[0] + t * (p1[0] - p0[0]), p0[1] + t * (p1[1] - p0[1])))
+        return SplineDensificationResult(len(pts), len(linear_pts), dist, linear_pts)
 
     # Catmull-Rom to Cubic Bezier conversion for smooth multi-point splines
     dense_pts: list[tuple[float, float]] = []

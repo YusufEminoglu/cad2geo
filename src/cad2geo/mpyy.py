@@ -8,8 +8,19 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import TypedDict
 
-MPYY_CATALOG = {
+
+class MpyyCatalogEntry(TypedDict):
+    """Style and matching metadata for one MPYY zoning category."""
+
+    patterns: list[str]
+    category: str
+    color: str
+    fill_opacity: float
+
+
+MPYY_CATALOG: dict[str, MpyyCatalogEntry] = {
     "RESIDENTIAL": {
         "patterns": [r"KONUT", r"MESKUN", r"GELISME", r"KONUT_ALANI", r"GECEKONDU", r"TOPLU_KONUT"],
         "category": "Konut Alanı (Residential)",

@@ -349,7 +349,7 @@ Indicative single-threaded CPython timings on complex municipal zoning drawings 
 
 ```bash
 # Clone the repository
-git clone https://gitlab.com/geospacephilo/cad2geo.git
+git clone https://github.com/YusufEminoglu/cad2geo.git
 cd cad2geo
 
 # Install in editable mode with development dependencies
@@ -382,7 +382,7 @@ If you use **cad2geo** in scientific research, GIS data engineering pipelines, o
   publisher = {Zenodo},
   version   = {0.12.2},
   doi       = {10.5281/zenodo.23677239},
-  url       = {https://gitlab.com/geospacephilo/cad2geo}
+  url       = {https://github.com/YusufEminoglu/cad2geo}
 }
 ```
 

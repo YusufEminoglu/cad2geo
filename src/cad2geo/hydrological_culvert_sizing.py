@@ -98,13 +98,18 @@ def calculate_culvert_hydraulic_capacity(
                     is_flow_capacity_adequate=(hw <= allowable_headwater_depth_m),
                 )
 
-    # Maximum fallback
+    # Maximum fallback: no standard barrel carries q_peak, so report the
+    # largest box with its real capacity and flag it as inadequate.
+    b_w, b_h = 6.0, 3.5
+    a_flow = b_w * b_h
+    r_h = a_flow / (b_w + 2.0 * b_h)
+    cap = (1.0 / p.manning_roughness_n) * a_flow * (r_h ** (2.0 / 3.0)) * math.sqrt(slope_s)
     return CulvertSizingResult(
         peak_discharge_q_m3s=q_peak,
         recommended_culvert_type="BOX_RECTANGULAR",
-        recommended_internal_dimensions_m=(6.0, 3.5),
-        actual_capacity_q_m3s=50.0,
-        flow_velocity_ms=3.5,
-        headwater_depth_hw_m=3.8,
-        is_flow_capacity_adequate=True,
+        recommended_internal_dimensions_m=(b_w, b_h),
+        actual_capacity_q_m3s=cap,
+        flow_velocity_ms=q_peak / a_flow,
+        headwater_depth_hw_m=b_h * 1.1,
+        is_flow_capacity_adequate=False,
     )

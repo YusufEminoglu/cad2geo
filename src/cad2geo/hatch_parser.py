@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 
 @dataclass
@@ -51,7 +51,10 @@ STANDARD_HATCHES: dict[str, HatchPattern] = {
 def parse_cad_hatches(layer_name: str) -> HatchPattern:
     """Infer standard CAD hatch pattern from layer name or description."""
     upper = layer_name.upper()
+    # Hand out copies so a caller tweaking scale/angle/lines cannot corrupt
+    # the shared STANDARD_HATCHES table for every later lookup.
     for name, pat in STANDARD_HATCHES.items():
         if name in upper:
-            return pat
-    return STANDARD_HATCHES["ANSI31"]
+            return replace(pat, lines=list(pat.lines))
+    pat = STANDARD_HATCHES["ANSI31"]
+    return replace(pat, lines=list(pat.lines))

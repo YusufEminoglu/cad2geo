@@ -116,6 +116,9 @@ def clean_cad_entities(
     for entity in entities:
         report.total_input_entities += 1
         coords = entity.coordinates
+        # The NCZ engine emits "Line"/"Polyline"/"Polygon" while the DXF
+        # bridge emits upper case; compare case-insensitively.
+        kind = entity.geometry_kind.upper()
 
         if not coords:
             continue
@@ -124,12 +127,12 @@ def clean_cad_entities(
         coords, dup_count = remove_duplicate_vertices(coords, min_dist=min_vertex_dist)
         report.duplicate_vertices_removed += dup_count
 
-        if len(coords) < 2 and entity.geometry_kind in ("LINE", "POLYLINE", "POLYGON"):
+        if len(coords) < 2 and kind in ("LINE", "POLYLINE", "POLYGON"):
             report.degenerate_lines_dropped += 1
             continue
 
         # Step 2: Line length check
-        if entity.geometry_kind in ("LINE", "POLYLINE") and not entity.is_closed:
+        if kind in ("LINE", "POLYLINE") and not entity.is_closed:
             total_len = sum(
                 math.hypot(coords[i + 1].x - coords[i].x, coords[i + 1].y - coords[i].y)
                 for i in range(len(coords) - 1)
@@ -140,7 +143,7 @@ def clean_cad_entities(
 
         # Step 3: Snap endpoints if closed polygon or intended closed ring
         snapped = False
-        if entity.geometry_kind == "POLYGON" or entity.is_closed:
+        if kind == "POLYGON" or entity.is_closed:
             coords, snapped = snap_endpoints(coords, tolerance=snap_tolerance)
             if snapped:
                 report.endpoints_snapped += 1

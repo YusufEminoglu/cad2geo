@@ -70,16 +70,21 @@ class DXFEntity:
         coords = [[c.x, c.y] for c in self.coordinates]
         geom: dict[str, Any] | None = None
 
-        if self.kind in ("LWPOLYLINE", "POLYLINE") and self.is_closed:
-            if coords and coords[0] != coords[-1]:
-                coords.append(coords[0])
-            geom = {"type": "Polygon", "coordinates": [coords]}
-        elif self.kind in ("LINE", "LWPOLYLINE", "POLYLINE", "3DFACE"):
-            geom = {"type": "LineString", "coordinates": coords}
+        ring = list(coords)
+        if ring and ring[0] != ring[-1]:
+            ring.append(ring[0])
+
+        # Keep the output valid GeoJSON: a Polygon ring needs >= 4 positions
+        # and a LineString >= 2, so smaller vertex sets degrade gracefully.
+        if self.kind in ("LWPOLYLINE", "POLYLINE") and self.is_closed and len(ring) >= 4:
+            geom = {"type": "Polygon", "coordinates": [ring]}
         elif self.kind in ("POINT", "TEXT", "MTEXT") and coords:
             geom = {"type": "Point", "coordinates": coords[0]}
-        elif coords:
+        elif len(coords) >= 2:
             geom = {"type": "LineString", "coordinates": coords}
+        elif coords:
+            # Single-vertex entities (e.g. CIRCLE/ARC centre) become a Point.
+            geom = {"type": "Point", "coordinates": coords[0]}
         else:
             geom = None
 
@@ -148,7 +153,14 @@ class DXFReader:
         current_coords: list[NetcadCoordinate] = []
         current_x = 0.0
         current_y = 0.0
-        current_z = 0.0
+        end_x = 0.0
+        end_y = 0.0
+        # A vertex is emitted on its group-20 (y) value; a following group-30
+        # only refines its z. LWPOLYLINE vertices and 2D entities carry no 30.
+        awaiting_z = False
+        awaiting_end_z = False
+        # Inside an old-style POLYLINE's VERTEX run (closed by SEQEND).
+        in_vertex = False
         current_text = ""
         current_text_height = 0.0
         current_radius = 0.0
@@ -195,16 +207,35 @@ class DXFReader:
                 continue
 
             if code == 0:
+                awaiting_z = awaiting_end_z = False
                 if val == "ENDSEC" or val == "EOF":
                     flush_entity()
                     break
 
+                if current_kind == "POLYLINE" and val.upper() == "VERTEX":
+                    # VERTEX records belong to the open POLYLINE entity.
+                    in_vertex = True
+                    continue
+                if current_kind == "POLYLINE" and val.upper() == "SEQEND":
+                    flush_entity()
+                    in_vertex = False
+                    continue
+
                 # New entity encountered
                 flush_entity()
+                in_vertex = False
                 current_kind = val.upper()
                 continue
 
             if current_kind is None:
+                continue
+
+            if current_kind == "POLYLINE" and code in (10, 20, 30) and not in_vertex:
+                # The POLYLINE header's own point is a dummy (0, 0, elevation).
+                continue
+            if in_vertex and code not in (10, 20, 30):
+                # Per-vertex layer/colour/flags/widths must not overwrite the
+                # polyline's own attributes (VERTEX flag 1 is not "closed").
                 continue
 
             if code == 8:
@@ -239,12 +270,15 @@ class DXFReader:
                     current_y = float(val)
                 except ValueError:
                     pass
+                current_coords.append(NetcadCoordinate(x=current_x, y=current_y, z=0.0))
+                awaiting_z, awaiting_end_z = True, False
             elif code == 30:
-                try:
-                    current_z = float(val)
-                except ValueError:
-                    pass
-                current_coords.append(NetcadCoordinate(x=current_x, y=current_y, z=current_z))
+                if awaiting_z:
+                    try:
+                        current_coords[-1].z = float(val)
+                    except ValueError:
+                        pass
+                    awaiting_z = False
             elif code == 11 and current_kind == "LINE":
                 try:
                     end_x = float(val)
@@ -255,12 +289,15 @@ class DXFReader:
                     end_y = float(val)
                 except ValueError:
                     end_y = current_y
+                current_coords.append(NetcadCoordinate(x=end_x, y=end_y, z=0.0))
+                awaiting_z, awaiting_end_z = False, True
             elif code == 31 and current_kind == "LINE":
-                try:
-                    end_z = float(val)
-                except ValueError:
-                    end_z = 0.0
-                current_coords.append(NetcadCoordinate(x=end_x, y=end_y, z=end_z))
+                if awaiting_end_z:
+                    try:
+                        current_coords[-1].z = float(val)
+                    except ValueError:
+                        pass
+                    awaiting_end_z = False
 
         flush_entity()
         return self.entities

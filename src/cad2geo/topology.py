@@ -31,6 +31,9 @@ def polygonize_cad_lines(
         dx = ls[0][0] - ls[-1][0]
         dy = ls[0][1] - ls[-1][1]
         if math.hypot(dx, dy) <= tolerance:
+            if len(ls) < 4:
+                # A closed ring needs >= 4 positions; A-B-A or A-A is degenerate.
+                continue
             ring = list(ls)
             ring[-1] = ring[0]  # Force exact closure
             closed_rings.append(ring)
@@ -96,7 +99,7 @@ def split_features_by_cad_layer(
     layers: dict[str, list[dict[str, Any]]] = {}
 
     for feat in features:
-        props = feat.get("properties", {})
+        props = feat.get("properties") or {}  # GeoJSON allows "properties": null
         layer_name = props.get("layer") or props.get("Layer") or props.get("layer_name") or "0"
         if layer_name not in layers:
             layers[layer_name] = []

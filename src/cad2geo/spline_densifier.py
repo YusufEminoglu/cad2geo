@@ -17,7 +17,7 @@ class SplineDensificationResult:
 
     def to_geojson_feature(self, properties: dict[str, Any] | None = None) -> dict[str, Any]:
         """Convert the densified spline into a GeoJSON LineString feature."""
-        props = properties or {}
+        props = dict(properties or {})
         props["length_m"] = round(self.total_curve_length_m, 2)
         props["vertices"] = self.densified_points_count
         return {
@@ -58,7 +58,9 @@ def densify_cad_splines(
         # Linear densification
         p0, p1 = pts[0], pts[1]
         dist = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
-        steps = max(samples_per_segment, int(math.ceil(dist / max(0.1, max_segment_length_m))))
+        # At least one step: a zero-length segment with samples_per_segment=0
+        # would otherwise divide by zero below.
+        steps = max(1, samples_per_segment, int(math.ceil(dist / max(0.1, max_segment_length_m))))
         linear_pts: list[tuple[float, float]] = []
         for i in range(steps + 1):
             t = i / float(steps)

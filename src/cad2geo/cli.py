@@ -55,6 +55,7 @@ def main(argv: list[str] | None = None) -> int:
     """Entry point for the ``cad2geo`` console script."""
     parser = build_parser()
     args = parser.parse_args(argv)
+    _tolerate_unencodable_output()
     if args.command == "inspect":
         return _inspect(args)
     if args.command == "convert":
@@ -149,6 +150,17 @@ def _clean(args: argparse.Namespace) -> int:
     print(f"  - Slivers filtered: {report.slivers_filtered}")
     print(f"Wrote cleaned GeoJSON to {args.output}")
     return 0
+
+
+def _tolerate_unencodable_output() -> None:
+    """Replace characters stdout cannot encode instead of crashing.
+
+    Redirected output on Windows uses the ANSI code page (e.g. cp1254), which
+    cannot represent every decoded layer name or report symbol.
+    """
+    reconfigure = getattr(sys.stdout, "reconfigure", None)
+    if callable(reconfigure):
+        reconfigure(errors="replace")
 
 
 if __name__ == "__main__":

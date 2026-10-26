@@ -18,6 +18,48 @@ All notable changes to this project will be documented in this file.
   radii and angles, and text/symbol/block rotations could carry `NaN`/`Infinity`. Such
   scalars now fall back to `0`, smart objects use their corner-point size, and polyline
   vertices with non-finite coordinates are skipped.
+- NCZ Engine v2: an `@TAB` not followed by digits (for example the text `@TABLE`) is no longer
+  taken as an attribute-table marker; it used to create a bogus table and truncate the
+  preceding real record.
+- NCZ Engine v2: a geometry record nested in a container block is now indexed when it ends
+  exactly at the container's last byte (an off-by-one bound skipped it).
+- NCZ Engine v2: an unterminated `SRS:"EPSG:..."` value in a `TILED_XML` block is read only to
+  the end of its block and stops at NUL padding, instead of running on through the rest of the
+  file and returning padding and the next blocks' bytes as the EPSG code.
+- NCZ Engine v2: open polylines no longer report rectangle `box_width`/`box_height`/rotation
+  when their cyclic vertex list happens to reduce to four corners; only closed rings do.
+- NCZ index cache: a cache file holding well-formed JSON of the wrong shape (non-object
+  document, non-object metadata, non-object summaries or tables) is now a cache miss instead
+  of an `AttributeError` or a crash later in the reader, and a failed save no longer leaves an
+  orphaned `*.json.tmp` file behind.
+- `cad2geo inspect`/`convert`/`clean`: output redirected to a file on Windows (ANSI code page)
+  no longer aborts with `UnicodeEncodeError` on characters the encoding cannot represent;
+  they are replaced instead.
+- DXF reader: vertices are emitted on their group-20 value (group 30 only refines z), so
+  `LWPOLYLINE` entities and 2D `LINE`/`POINT` entities keep their coordinates (they used to
+  come back empty); a stray group 31 no longer raises `UnboundLocalError`; old-style
+  `POLYLINE`/`VERTEX`/`SEQEND` sequences are collected into one polyline instead of one
+  bogus entity per vertex plus a dummy `(0, 0)` point.
+- DXF GeoJSON export always emits valid geometry: single-vertex entities (e.g. `CIRCLE`
+  centres) become a `Point` instead of a one-position `LineString`, and a closed polyline
+  with fewer than three vertices becomes a `LineString` instead of an invalid `Polygon` ring.
+- CSV sniffer: rows are split with CSV quoting rules, so quoted files (`"1","500000.5",...`)
+  yield points (they produced none); `;`-delimited files with decimal commas are detected
+  as `;` (a tie with `,` used to win) and their first data row is no longer taken as a
+  header; `csv_to_geojson` no longer fails on an empty file with an explicit profile.
+- `clean_cad_entities` matches geometry kinds case-insensitively, so NCZ engine entities
+  (`"Line"`, `"Polyline"`, `"Polygon"`) are length-checked and snapped like DXF ones.
+- `polygonize_cad_lines` no longer returns degenerate "closed" inputs with fewer than four
+  positions (`A-B-A`, `A-A`) as polygon rings; `split_features_by_cad_layer` accepts GeoJSON
+  features with `"properties": null`.
+- `calculate_culvert_hydraulic_capacity`: when no standard barrel carries the peak flow the
+  result now reports the largest box's real capacity and `is_flow_capacity_adequate=False`
+  (it claimed a fixed 50 m3/s and `True`).
+- `parse_cad_hatches` returns a copy, so changing the returned pattern no longer corrupts the
+  shared `STANDARD_HATCHES` table.
+- `densify_cad_splines` no longer divides by zero for two coincident points with
+  `samples_per_segment=0`, and `to_geojson_feature` no longer mutates the caller's
+  `properties` dict.
 
 ## [0.12.0] - 2026-08-30
 ### Added

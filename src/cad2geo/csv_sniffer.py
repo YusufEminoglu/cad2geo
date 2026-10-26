@@ -59,6 +59,13 @@ class CsvProfile:
     sample_points: list[tuple[float, float]] = field(default_factory=list)
 
 
+def _split_row(row: str, delimiter: str) -> list[str]:
+    """Split one data row, honouring CSV quoting for real delimiters."""
+    if delimiter == " ":
+        return re.split(r"\s+", row)
+    return next(csv.reader([row], delimiter=delimiter), [])
+
+
 def sniff_csv_coordinates(filepath_or_content: str) -> CsvProfile:
     """Analyze a delimited text/CSV file to detect delimiter, columns, and coordinate fields."""
     if os.path.isfile(filepath_or_content):
@@ -79,7 +86,9 @@ def sniff_csv_coordinates(filepath_or_content: str) -> CsvProfile:
             cols = len(re.split(r"\s+", lines[0]))
         else:
             cols = len(lines[0].split(d))
-        if cols > max_cols:
+        # On a tie ";" beats ",": the comma doubles as the decimal separator
+        # in ";"-delimited survey files (e.g. "1;4500000,5;500000,25").
+        if cols > max_cols or (cols == max_cols and d == ";" and best_delim == ","):
             max_cols = cols
             best_delim = d
 
@@ -93,7 +102,7 @@ def sniff_csv_coordinates(filepath_or_content: str) -> CsvProfile:
     # Check if first row is actually a header or data
     has_header = False
     for h in header_row:
-        if not re.match(r"^-?\d+(\.\d+)?$", h.strip()):
+        if not re.match(r"^-?\d+([.,]\d+)?$", h.strip()):
             has_header = True
             break
 
@@ -137,10 +146,7 @@ def sniff_csv_coordinates(filepath_or_content: str) -> CsvProfile:
     y_idx = fields_list.index(y_col) if y_col in fields_list else 1
 
     for row_str in data_lines[:100]:
-        if best_delim == " ":
-            parts = re.split(r"\s+", row_str)
-        else:
-            parts = row_str.split(best_delim)
+        parts = _split_row(row_str, best_delim)
         if len(parts) > max(x_idx, y_idx):
             try:
                 vx = float(parts[x_idx].replace(",", "."))
@@ -171,16 +177,13 @@ def csv_to_geojson(filepath: str, profile: CsvProfile | None = None) -> dict[str
     with open(filepath, "r", encoding="utf-8", errors="replace") as f:
         lines = [ln.strip() for ln in f if ln.strip()]
 
-    header_offset = 1 if profile.fields and profile.fields[0] in lines[0] else 0
+    header_offset = 1 if lines and profile.fields and profile.fields[0] in lines[0] else 0
     x_idx = profile.fields.index(profile.x_field) if profile.x_field in profile.fields else 0
     y_idx = profile.fields.index(profile.y_field) if profile.y_field in profile.fields else 1
     z_idx = profile.fields.index(profile.z_field) if profile.z_field in profile.fields else -1
 
     for line in lines[header_offset:]:
-        if profile.delimiter == " ":
-            parts = re.split(r"\s+", line)
-        else:
-            parts = line.split(profile.delimiter)
+        parts = _split_row(line, profile.delimiter)
 
         if len(parts) > max(x_idx, y_idx):
             try:

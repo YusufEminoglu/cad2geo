@@ -11,6 +11,14 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Edge-case tests for `polygonize_cad_lines` (reverse chaining, pre-closed rings, degenerate input) and `split_features_by_cad_layer` (layer fallbacks).
 
+### Fixed
+- NCZ Engine v2 decoders no longer leak `NaN`/`inf` from corrupt or unexpected field values
+  into decoded entities. A non-finite box rotation used to turn every ring corner into `NaN`
+  (written as invalid JSON by the GeoJSON exporters), and smart-object sizes, circle/arc
+  radii and angles, and text/symbol/block rotations could carry `NaN`/`Infinity`. Such
+  scalars now fall back to `0`, smart objects use their corner-point size, and polyline
+  vertices with non-finite coordinates are skipped.
+
 ## [0.12.0] - 2026-08-30
 ### Added
 - **Geotechnical Embankment Bishop Circular Slope Stability Engine (`embankment_slope_bishop_stability.py`)**: Added `evaluate_bishop_slope_stability` solving Bishop's simplified method of slices and pore water ratio $r_u$.

@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: "Eminoğlu"
+    given-names: "Yusuf"
+    email: "yusufeminoglu@gmail.com"
+    orcid: "https://orcid.org/0009-0005-6000-2934"
+title: "cad2geo"
+version: "0.12.2"
+date-released: "2026-10-26"
+license: "GPL-2.0-or-later"
+repository-code: "https://github.com/YusufEminoglu/cad2geo"
+url: "https://pypi.org/project/cad2geo/"
+abstract: "Convert Netcad NCZ/NCA and DXF CAD drawings to GeoJSON in pure Python (no GDAL, no QGIS), plus civil-engineering calculators."
+keywords:
+  - "cad"
+  - "gis"
+  - "geojson"
+  - "netcad"
+  - "ncz"
+  - "nca"
+  - "geospatial"
+  - "converter"
+  - "dxf"
+  - "dxf-to-geojson"
+  - "ncz-to-geojson"
+  - "cad-to-gis"

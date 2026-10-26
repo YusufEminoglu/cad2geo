@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.12.3] - 2026-10-27
+### Changed
+- Project URLs (Repository, Changelog) and all README and documentation-site links now point to the GitHub repository instead of GitLab.
+- README shows the Zenodo DOI badge; `CITATION.cff` and the BibTeX entry carry the DOI.
+
 ## [0.12.2] - 2026-10-26
 ### Changed
 - PyPI metadata: a plain-language summary, search keywords that match what users look for, and a working issue tracker link (GitHub issues; the GitLab issues page returned 404).

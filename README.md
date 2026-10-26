@@ -380,7 +380,7 @@ If you use **cad2geo** in scientific research, GIS data engineering pipelines, o
   title     = {{cad2geo: Pure-Python Netcad NCZ/NCA CAD Parser and High-Performance GeoJSON Engine}},
   year      = {2026},
   publisher = {Zenodo},
-  version   = {0.12.2},
+  version   = {0.12.3},
   doi       = {10.5281/zenodo.23677239},
   url       = {https://github.com/YusufEminoglu/cad2geo}
 }

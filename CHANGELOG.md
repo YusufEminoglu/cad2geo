@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file.
 - Edge-case tests for `polygonize_cad_lines` (reverse chaining, pre-closed rings, degenerate input) and `split_features_by_cad_layer` (layer fallbacks).
 
 ### Fixed
+- GeoJSON: a single-vertex entity (e.g. a circle, which carries only its centre) was written as
+  a one-position LineString, which is invalid GeoJSON; it is now a Point.
+- README: the output-format row no longer implies binary Shapefile/GeoParquet/GeoBuf writers;
+  it lists what cad2geo writes and points to NCZ2Geo for those formats.
 - NCZ Engine v2 decoders no longer leak `NaN`/`inf` from corrupt or unexpected field values
   into decoded entities. A non-finite box rotation used to turn every ring corner into `NaN`
   (written as invalid JSON by the GeoJSON exporters), and smart-object sizes, circle/arc

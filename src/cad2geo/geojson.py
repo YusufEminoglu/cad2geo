@@ -44,7 +44,9 @@ def _entity_geometry(entity: NetcadEntity) -> dict | None:
     kind = entity.geometry_kind.lower()
     if not coords:
         return None
-    if kind in {"point", "symbol", "text", "smartobject"}:
+    # A single vertex is a point whatever the kind: circles carry only their centre
+    # (the radius stays in the properties), and a one-position LineString is invalid.
+    if kind in {"point", "symbol", "text", "smartobject"} or len(coords) == 1:
         return {"type": "Point", "coordinates": coords[0]}
     if kind in {"polygon", "rectangle", "circle"} or entity.is_closed:
         ring = coords[:]
@@ -53,8 +55,6 @@ def _entity_geometry(entity: NetcadEntity) -> dict | None:
         if len(ring) < 4:
             return {"type": "LineString", "coordinates": coords}
         return {"type": "Polygon", "coordinates": [ring]}
-    if len(coords) == 1:
-        return {"type": "Point", "coordinates": coords[0]}
     return {"type": "LineString", "coordinates": coords}
 
 

@@ -105,7 +105,7 @@ Beyond raw conversion, the library ships a growing suite of turnkey **civil-engi
 | Python | 3.9, 3.10, 3.11, 3.12, 3.13 |
 | Operating systems | Windows, macOS, Linux (pure Python, no compiled extensions) |
 | Input formats | Netcad `.ncz` / `.nca`, AutoCAD `.dxf`, delimited text via `csv_to_geojson` |
-| Output formats | GeoJSON, `GeoJSON` strings/streams, lightweight Shapefile/GeoParquet/GeoBuf metadata |
+| Output formats | GeoJSON (files, strings, streams), ESRI ASCII GEN text, and GeoParquet / FlatGeobuf *metadata* dictionaries. For binary Shapefile, GeoPackage, FlatGeobuf, GeoParquet, DXF and KML output use the sister package [NCZ2Geo](https://pypi.org/project/NCZ2Geo/). |
 | Runtime dependencies | None (the `[dev]` extra adds pytest, coverage, ruff, mypy, build and twine) |
 | Typing | Fully annotated public API with a bundled `py.typed` marker |
 

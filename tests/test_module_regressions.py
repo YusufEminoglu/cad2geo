@@ -413,5 +413,21 @@ class TestReaderAndCli(unittest.TestCase):
         self.assertIn(f"{len(collection['features'])} feature(s)", out)
 
 
+class TestGeoJsonGeometry(unittest.TestCase):
+    def test_single_vertex_entities_are_points(self) -> None:
+        from cad2geo.geojson import entities_to_feature_collection
+
+        circle = NetcadEntity(
+            "Circle", 1, "TREES", radius=2.5, coordinates=[NetcadCoordinate(5.0, 6.0)]
+        )
+        closed = NetcadEntity(
+            "Polyline", 1, "X", is_closed=True, coordinates=[NetcadCoordinate(1.0, 1.0)]
+        )
+        features = entities_to_feature_collection([circle, closed])["features"]
+        self.assertEqual([f["geometry"]["type"] for f in features], ["Point", "Point"])
+        self.assertEqual(features[0]["geometry"]["coordinates"], [5.0, 6.0, 0.0])
+        self.assertEqual(features[0]["properties"]["radius"], 2.5)
+
+
 if __name__ == "__main__":
     unittest.main()

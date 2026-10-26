@@ -8,6 +8,7 @@
 
 
 [![PyPI version](https://img.shields.io/pypi/v/cad2geo.svg?color=f59e0b)](https://pypi.org/project/cad2geo/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23677239.svg)](https://doi.org/10.5281/zenodo.23677239)
 [![Python version support](https://img.shields.io/pypi/pyversions/cad2geo.svg?color=3b82f6)](https://pypi.org/project/cad2geo/)
 [![Documentation](https://img.shields.io/badge/docs-GEOPHILO-10b981.svg)](https://geophilo.com/cad2geo/)
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](https://github.com/YusufEminoglu/cad2geo/blob/main/LICENSE)
@@ -378,8 +379,9 @@ If you use **cad2geo** in scientific research, GIS data engineering pipelines, o
   author    = {Emino{\u{g}}lu, Yusuf},
   title     = {{cad2geo: Pure-Python Netcad NCZ/NCA CAD Parser and High-Performance GeoJSON Engine}},
   year      = {2026},
-  publisher = {PyPI - Python Package Index},
+  publisher = {Zenodo},
   version   = {0.12.2},
+  doi       = {10.5281/zenodo.23677239},
   url       = {https://gitlab.com/geospacephilo/cad2geo}
 }
 ```

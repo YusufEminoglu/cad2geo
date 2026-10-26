@@ -6,7 +6,7 @@ public symbols are re-exported from this module so that both the Python API and
 the ``cad2geo`` command-line entry point share a single, stable surface.
 """
 
-__version__ = "0.12.1"
+__version__ = "0.12.2"
 __author__ = "Yusuf Eminoğlu"
 
 from . import cli as cli

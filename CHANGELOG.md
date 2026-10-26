@@ -3,7 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+## [0.12.2] - 2026-10-26
 ### Changed
+- PyPI metadata: a plain-language summary, search keywords that match what users look for, and a working issue tracker link (GitHub issues; the GitLab issues page returned 404).
 - Completed type hints and docstrings across the NCZ Engine v2 (binary cursor, geometry decoders, block metadata, attribute tables, cache) and the civil-engineering result objects.
 - Applied `ruff format` to `src/` and `tests/`, and re-verified `ruff check`.
 - Rewrote README quickstart/CLI examples so every snippet matches the real public API, and documented the full public API and engineering engines.

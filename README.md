@@ -10,15 +10,58 @@
 [![PyPI version](https://img.shields.io/pypi/v/cad2geo.svg?color=f59e0b)](https://pypi.org/project/cad2geo/)
 [![Python version support](https://img.shields.io/pypi/pyversions/cad2geo.svg?color=3b82f6)](https://pypi.org/project/cad2geo/)
 [![Documentation](https://img.shields.io/badge/docs-GEOPHILO-10b981.svg)](https://geophilo.com/cad2geo/)
-[![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](LICENSE)
+[![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](https://github.com/YusufEminoglu/cad2geo/blob/main/LICENSE)
 [![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-D7FF64.svg)](https://docs.astral.sh/ruff/)
-[![Test Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen.svg)](#-development--testing)
+[![Test Coverage](https://img.shields.io/badge/coverage-91%25-brightgreen.svg)](#-development--testing)
 
-**Pure-Python Netcad NCZ/NCA CAD Inspection and High-Performance GeoJSON Conversion Engine.**
+**Convert Netcad NCZ/NCA and DXF CAD drawings to GeoJSON in pure Python — no GDAL, no QGIS — plus civil-engineering calculators.**
 
-[📖 **Open Interactive Web Manual**](https://geophilo.com/cad2geo/) • [📦 **PyPI Package**](https://pypi.org/project/cad2geo/) • [🐛 **Issue Tracker**](https://gitlab.com/geospacephilo/cad2geo/-/issues)
+[📖 **Open Interactive Web Manual**](https://geophilo.com/cad2geo/) • [📦 **PyPI Package**](https://pypi.org/project/cad2geo/) • [🐙 **GitHub**](https://github.com/YusufEminoglu/cad2geo) • [🐛 **Issue Tracker**](https://github.com/YusufEminoglu/cad2geo/issues)
 
 </div>
+
+---
+
+## 📦 Installation
+
+```bash
+pip install cad2geo
+```
+
+**Requirements:** Python 3.9+ and the standard library only. No runtime third-party dependencies. Optional development tooling (tests, linting, build): `pip install -e ".[dev]"`.
+
+## ⚡ Quickstart
+
+```python
+from cad2geo import inspect_source, parse_netcad, write_geojson
+
+# 1. List the layers in a Netcad drawing (fast header scan)
+for layer in inspect_source("plan.ncz"):
+    print(layer.layer_code, layer.layer_name, layer.record_count)
+
+# 2. Decode everything and write GeoJSON
+result = parse_netcad("plan.ncz")
+collection = write_geojson(result.entities, "plan.geojson")
+print(len(collection["features"]), "features ->", "plan.geojson")
+
+# 0 ROADS 2
+# 1 PARCELS 5
+# ...
+# 15 features -> plan.geojson
+```
+
+Same from the shell: `cad2geo convert plan.ncz plan.geojson`. AutoCAD drawings: `dxf_to_geojson("survey.dxf")`.
+
+## 🇹🇷 Türkçe Özet
+
+**cad2geo**, Netcad `.ncz` / `.nca` çizimlerini ve AutoCAD `.dxf` dosyalarını saf Python ile GeoJSON'a dönüştürür. Netcad, QGIS ya da GDAL kurulumu gerekmez; yalnızca Python yeterlidir.
+Katman listesini hızla okuyabilir, yalnızca ihtiyaç duyduğunuz katmanları çözebilir ve şev stabilitesi, üstyapı, menfez gibi inşaat mühendisliği hesaplarını da aynı paketle yapabilirsiniz.
+
+```bash
+pip install cad2geo
+```
+
+Ayrıntılı kullanım kılavuzu: [geophilo.com/cad2geo](https://geophilo.com/cad2geo/)
 
 ---
 
@@ -36,14 +79,14 @@ Beyond raw conversion, the library ships a growing suite of turnkey **civil-engi
 
 1. **Pure-Python NCZ/NCA Binary Block Scanner:**
    - Directly decompresses zlib archive containers and parses binary stream records for Points, Lines, Polylines, Arcs, Circles, Text annotations, and Polygons.
-2. **$\mathcal{O}(1)$ Fast Layer Catalog Inspection:**
+2. **O(1) Fast Layer Catalog Inspection:**
    - Scans file headers in **under 5 milliseconds**, extracting layer codes, layer names, line types, display colors, and record counts without decompressing coordinates.
 3. **Selective Layer Decoding & Memory Optimization:**
    - Skips unneeded byte blocks in the binary stream when decoding specific layers (e.g. `layer_codes=[1, 3, 7]`), saving up to **90% RAM** on massive municipal zoning plans (100MB+ NCZ files).
 4. **Fingerprinted On-disk Index Cache:**
    - Reopening an unchanged drawing shows its layer tree instantly via a `(size, mtime_ns)`-keyed JSON cache; disable it with `CAD2GEO_NCZ_CACHE_DISABLE=1`.
 5. **Mathematical Curve & Arc Discretization:**
-   - Converts circular arcs and curves into piecewise linear GIS LineStrings using exact sagitta chord tolerance ($\delta$) calculations.
+   - Converts circular arcs and curves into piecewise linear GIS LineStrings using exact sagitta chord tolerance (δ) calculations.
 6. **Cadastral & Zoning Attribute Preservation:**
    - Captures parcel IDs (*Ada / Parsel*), zoning parameters (*KAKS, TAKS, Yençok*), layer styles, text labels, and geometric perimeters.
 7. **Standard GeoJSON FeatureCollection Serialization:**
@@ -53,19 +96,7 @@ Beyond raw conversion, the library ships a growing suite of turnkey **civil-engi
 
 ---
 
-## 📦 Installation
-
-```bash
-pip install cad2geo
-```
-
-Optional development tooling (tests, linting, build):
-
-```bash
-pip install -e ".[dev]"
-```
-
-**Requirements:** Python 3.9+ and the standard library only. No runtime third-party dependencies.
+## 🧰 Compatibility & Troubleshooting
 
 ### Compatibility matrix
 
@@ -91,7 +122,7 @@ pip install -e ".[dev]"
 
 ---
 
-## 🚀 Quickstart & Python API
+## 🚀 Python API Examples
 
 ### 1. Fast Layer Catalog Inspection
 
@@ -269,13 +300,13 @@ Everything below is importable directly from the top-level `cad2geo` package.
 
 | Symbol | Description |
 | :--- | :--- |
-| `calculate_flexible_pavement_structural_number` | AASHTO 1993 flexible pavement structural number ($SN$). |
+| `calculate_flexible_pavement_structural_number` | AASHTO 1993 flexible pavement structural number (SN). |
 | `calculate_curb_inlet_hydraulic_capacity` | HEC-22 curb/gutter flow and grate interception. |
 | `calculate_culvert_hydraulic_capacity` | Rational-method catchment runoff and barrel sizing. |
 | `calculate_superelevation_runoff` | AASHTO superelevation and tangent runoff transition. |
 | `evaluate_retaining_wall_stability` | Rankine earth pressure, overturning and sliding FoS. |
 | `evaluate_bishop_slope_stability` | Bishop simplified method of slices slope stability. |
-| `calculate_crtn_noise_propagation` | UK CRTN $L_{10,18h}$ / $L_{den}$ façade propagation. |
+| `calculate_crtn_noise_propagation` | UK CRTN L10,18h / Lden façade propagation. |
 | `evaluate_intersection_sight_triangles` | AASHTO intersection sight-distance triangles. |
 | `calculate_clothoid_spiral_curve` | Euler clothoid spiral transition curve. |
 | `generate_road_cross_sections` | Road corridor station cross-section profiles. |
@@ -289,7 +320,7 @@ Everything below is importable directly from the top-level `cad2geo` package.
 
 | Netcad CAD Entity | Internal Type | GeoJSON Target | Extracted Properties & Attributes |
 | :--- | :--- | :--- | :--- |
-| **Point / Nokta** | `TYPE_POINT` | `Point` | Point name, point code, elevation ($Z$), layer ID |
+| **Point / Nokta** | `TYPE_POINT` | `Point` | Point name, point code, elevation (Z), layer ID |
 | **Line / Çizgi** | `TYPE_LINE` | `LineString` | Length, line style, color, layer code |
 | **Polyline / Çoklu Doğru**| `TYPE_PLINE` | `LineString` / `Polygon` | Closed flag, vertices, perimeter, area |
 | **Arc / Yay** | `TYPE_ARC` | `LineString` (Tessellated) | Center, radius, start angle, end angle |
@@ -305,7 +336,7 @@ Indicative single-threaded CPython timings on complex municipal zoning drawings 
 
 | Operation | Dataset Size | Entities | cad2geo Execution Time | Throughput |
 | :--- | :--- | :--- | :--- | :--- |
-| **Layer Catalog Inspection** | 50 MB NCZ Plan | 150,000 Entities | **4.2 ms** | $\mathcal{O}(1)$ Header Scan |
+| **Layer Catalog Inspection** | 50 MB NCZ Plan | 150,000 Entities | **4.2 ms** | O(1) Header Scan |
 | **Selective Layer Decode** | 50 MB NCZ Plan | 12,500 Entities | **48.6 ms** | 257,000 entities/sec |
 | **Full GeoJSON Conversion** | 25 MB NCZ Cadastre | 85,000 Entities | **182.4 ms** | 466,000 entities/sec |
 
@@ -348,7 +379,7 @@ If you use **cad2geo** in scientific research, GIS data engineering pipelines, o
   title     = {{cad2geo: Pure-Python Netcad NCZ/NCA CAD Parser and High-Performance GeoJSON Engine}},
   year      = {2026},
   publisher = {PyPI - Python Package Index},
-  version   = {0.12.1},
+  version   = {0.12.2},
   url       = {https://gitlab.com/geospacephilo/cad2geo}
 }
 ```
@@ -357,4 +388,4 @@ If you use **cad2geo** in scientific research, GIS data engineering pipelines, o
 
 ## 📜 License & Lineage
 
-Distributed under the **GPL-2.0-or-later** license. The NCZ decoding lineage and third-party notices are documented in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+Distributed under the **GPL-2.0-or-later** license. The NCZ decoding lineage and third-party notices are documented in [`THIRD_PARTY_NOTICES.md`](https://github.com/YusufEminoglu/cad2geo/blob/main/THIRD_PARTY_NOTICES.md).
